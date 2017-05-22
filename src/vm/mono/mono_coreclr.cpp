@@ -303,9 +303,17 @@ extern "C" MonoClass * mono_class_from_name_case(MonoImage *image, const char* n
 
 extern "C" MonoAssembly * mono_domain_assembly_open(MonoDomain *domain, const char *name)
 {
-    // domain->LoadAssemblyHelper()
+    CONTRACTL
+    {
+        NOTHROW;
+        GC_NOTRIGGER;
+        // We don't support multiple domains
+        PRECONDITION(domain == g_RootDomain);
+        PRECONDITION(domain != nullptr);
+        PRECONDITION(name != nullptr);
+    }
+    CONTRACTL_END;
 
-    // TODO: handle multiple MonoDomain here
     SString assemblyPath(SString::Utf8, name);
     auto assembly = AssemblySpec::LoadAssembly(assemblyPath.GetUnicode());
     assembly->GetDomainAssembly((MonoDomain_clr*)domain);
