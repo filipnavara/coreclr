@@ -1393,8 +1393,7 @@ extern "C" gint32 mono_class_instance_size(MonoClass *klass)
 
 extern "C" guint32 mono_object_get_size(MonoObject *obj)
 {
-    // TODO
-    return NULL;
+    return reinterpret_cast<MonoObject_clr*>(obj)->GetSize();
 }
 
 extern "C" guint32 mono_class_get_type_token(MonoClass *klass)
