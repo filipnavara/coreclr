@@ -1,10 +1,13 @@
 #include <stdio.h>
 #include <cstdint>
 #include <cstdlib>
-#include <dlfcn.h>
 #include <iostream>
 #include <string>
+
+#ifndef WIN32
 #include <unistd.h>
+#include <dlfcn.h>
+#endif
 
 typedef signed short SInt16;
 
@@ -21,17 +24,40 @@ typedef void* mono_liveness_world_state_callback;
 
 void* s_MonoLibrary = nullptr;
 
+#ifdef WIN32
+#include <Windows.h>
+const int RTLD_LAZY = 0; // not used
+void* dlopen(const char* path, int flags)
+{
+    return ::LoadLibraryA(path);
+}
+void dlclose(void* handle)
+{
+    ::FreeLibrary((HMODULE)handle);
+}
+void* dlsym(void* handle, const char* funcname)
+{
+    auto sym = ::GetProcAddress((HMODULE)handle, funcname);
+    if (!sym)
+    {
+        printf("Failing to dlsym '%s'\n", funcname);
+        //exit(1);
+    }
+    return sym;
+}
+#endif
+
 void* get_handle()
 {
     if(s_MonoLibrary == nullptr)
     {
         std::string monoRuntimeFolder = getenv("UNITY_ROOT");
 #if defined(__APPLE__)
-        monoRuntimeFolder += "/External/MonoBleedingEdge/embedruntimes/osx/libmonosgen-2.0.dylib";
+        monoRuntimeFolder += "/External/MonoBleedingEdge/builds/embedruntimes/osx/libmonosgen-2.0.dylib";
 #elif defined(_WIN64)
-        monoRuntimeFolder += "/External/MonoBleedingEdge/embedruntimes/win64/mono-2.0-sgen.dll";
+        monoRuntimeFolder += "/External/MonoBleedingEdge/builds/embedruntimes/win64/mono-2.0-sgen.dll";
 #elif defined(_WIN32)
-        monoRuntimeFolder += "/External/MonoBleedingEdge/embedruntimes/win32/mono-2.0-sgen.dll";
+        monoRuntimeFolder += "/External/MonoBleedingEdge/builds/embedruntimes/win32/mono-2.0-sgen.dll";
 #else
 #error("Not supported");
 #endif
@@ -55,8 +81,8 @@ typedef wchar_t mono_char; // used by CoreCLR
 #include <MonoTypes.h>
 #include <MonoFunctions.h>
 
-const char* k_MonoLib = "/External/MonoBleedingEdge/monodistribution/lib";
-const char* k_MonoEtc = "/External/MonoBleedingEdge/monodistribution/etc";
+const char* k_MonoLib = "/External/MonoBleedingEdge/builds/monodistribution/lib";
+const char* k_MonoEtc = "/External/MonoBleedingEdge/builds/monodistribution/etc";
 
 extern "C" void InternalMethod()
 {
@@ -143,7 +169,11 @@ int main(int argc, char * argv[])
 
     printf("Cleaning up...\n");
 
+#ifdef USE_CONSOLEBRANCH_MONO
+    mono_jit_cleanup(domain);
+#else
     mono_unity_jit_cleanup(domain);
+#endif
 
     dlclose(s_MonoLibrary);
 
