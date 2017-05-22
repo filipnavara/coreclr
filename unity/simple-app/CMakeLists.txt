@@ -5,6 +5,10 @@ set(PROJECT_NAME_STR mono_test_app)
 project(${PROJECT_NAME_STR} CXX)
 
 if ("${UNITY_ROOT}" STREQUAL "")
+    set(UNITY_ROOT "$ENV{UNITY_ROOT}")
+endif()
+
+if ("${UNITY_ROOT}" STREQUAL "")
     message(FATAL_ERROR "UNITY_ROOT is not provided")
 endif()
 

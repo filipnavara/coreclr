@@ -608,6 +608,11 @@ set(BuildToolsDir "${CLR_DIR}/packages/Microsoft.DotNet.BuildTools.CoreCLR/${Bui
 add_subdirectory(src)
 
 #------------------------------
+# Add Mono Test App (Simple App)
+#------------------------------
+add_subdirectory(unity/simple-app)
+
+#------------------------------
 # Add Test Directory
 #------------------------------
 if(CLR_CMAKE_BUILD_TESTS)
