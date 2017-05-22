@@ -172,6 +172,11 @@ extern "C" MonoDomain* mono_jit_init_version(const char *file, const char* runti
         hr = GetCLRRuntimeHost(IID_ICLRRuntimeHost2, (IUnknown**)&g_CLRRuntimeHost);
         ICLRRuntimeHost2* host = g_CLRRuntimeHost;
 
+		hr = host->SetStartupFlags(static_cast<STARTUP_FLAGS>(
+			STARTUP_FLAGS::STARTUP_CONCURRENT_GC | STARTUP_FLAGS::STARTUP_SINGLE_APPDOMAIN | STARTUP_FLAGS::STARTUP_LOADER_OPTIMIZATION_SINGLE_DOMAIN));
+
+		hr = host->Start();
+
         const wchar_t *property_keys[] = {
             W("TRUSTED_PLATFORM_ASSEMBLIES"),
             W("APP_PATHS"),
