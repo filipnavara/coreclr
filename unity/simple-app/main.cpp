@@ -98,6 +98,7 @@ int main(int argc, char * argv[])
         return 1;
     }
 
+    printf("Adding internal method 'coreclrtest.test::InternalMethod'...\n");
     mono_add_internal_call ("coreclrtest.test::InternalMethod", reinterpret_cast<gconstpointer>(InternalMethod));
 
     printf("Getting image...\n");
