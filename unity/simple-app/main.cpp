@@ -58,6 +58,11 @@ typedef wchar_t mono_char; // used by CoreCLR
 const char* k_MonoLib = "/External/MonoBleedingEdge/monodistribution/lib";
 const char* k_MonoEtc = "/External/MonoBleedingEdge/monodistribution/etc";
 
+extern "C" void InternalMethod()
+{
+    printf("Internal method was called\n");
+}
+
 int main(int argc, char * argv[])
 {
     if(argc < 2)
@@ -92,6 +97,8 @@ int main(int argc, char * argv[])
         printf("Failed to load assembly!\n");
         return 1;
     }
+
+    mono_add_internal_call ("coreclrtest.test::InternalMethod", reinterpret_cast<gconstpointer>(InternalMethod));
 
     printf("Getting image...\n");
     MonoImage* image = mono_assembly_get_image(assembly);
