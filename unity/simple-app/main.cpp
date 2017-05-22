@@ -31,7 +31,7 @@ void* get_handle()
 #elif defined(_WIN64)
         monoRuntimeFolder += "/External/MonoBleedingEdge/embedruntimes/win64/mono-2.0-sgen.dll";
 #elif defined(_WIN32)
-        monoRuntimeFolder += "/External/MonoBleedingEdge/embedruntimes/win64/mono-2.0-sgen.dll";
+        monoRuntimeFolder += "/External/MonoBleedingEdge/embedruntimes/win32/mono-2.0-sgen.dll";
 #else
 #error("Not supported");
 #endif
