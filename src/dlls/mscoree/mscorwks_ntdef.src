@@ -18,6 +18,8 @@ EXPORTS
 
         ; mono
         mono_test_export
+        mono_jit_init
+        mono_jit_init_version
         
         ; Unix hosting API
         coreclr_create_delegate

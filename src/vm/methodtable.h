@@ -4287,6 +4287,9 @@ public:
     BOOL IsInheritanceChainLayoutFixedInCurrentVersionBubble();
 #endif
 
+
+public:
+	void* m_pUserData;
 };  // class MethodTable
 
 #if defined(FEATURE_COMINTEROP) && !defined(DACCESS_COMPILE)
