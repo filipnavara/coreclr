@@ -625,8 +625,7 @@ extern "C" void mono_class_set_userdata(MonoClass* klass, void* userdata)
 
 extern "C" MonoDomain* mono_domain_get()
 {
-    // TODO
-    return NULL;
+    return g_RootDomain;
 }
 
 extern "C" MonoDomain* mono_get_root_domain()
