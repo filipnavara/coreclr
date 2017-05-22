@@ -1444,26 +1444,66 @@ extern "C" MonoClass* mono_class_from_mono_type(MonoType *image)
 
 extern "C" int mono_class_get_rank(MonoClass *klass)
 {
+    CONTRACTL
+    {
+        NOTHROW;
+    GC_NOTRIGGER;
+    PRECONDITION(klass != NULL);
+    }
+    CONTRACTL_END;
+
     return reinterpret_cast<MonoClass_clr*>(klass)->GetRank();
 }
 
 extern "C" MonoClass* mono_class_get_element_class(MonoClass *klass)
 {
+    CONTRACTL
+    {
+        NOTHROW;
+    GC_NOTRIGGER;
+    PRECONDITION(klass != NULL);
+    }
+    CONTRACTL_END;
+
     return (MonoClass*)reinterpret_cast<MonoClass_clr*>(klass)->GetApproxArrayElementTypeHandle().AsMethodTable();
 }
 
 extern "C" gboolean mono_unity_class_is_interface(MonoClass* klass)
 {
+    CONTRACTL
+    {
+        NOTHROW;
+    GC_NOTRIGGER;
+    PRECONDITION(klass != NULL);
+    }
+    CONTRACTL_END;
+
     return reinterpret_cast<MonoClass_clr*>(klass)->IsInterface();
 }
 
 extern "C" gboolean mono_unity_class_is_abstract(MonoClass* klass)
 {
+    CONTRACTL
+    {
+        NOTHROW;
+    GC_NOTRIGGER;
+    PRECONDITION(klass != NULL);
+    }
+    CONTRACTL_END;
+
     return reinterpret_cast<MonoClass_clr*>(klass)->IsAbstract();
 }
 
 extern "C" int mono_array_element_size(MonoClass* classOfArray)
 {
+    CONTRACTL
+    {
+        NOTHROW;
+    GC_NOTRIGGER;
+    PRECONDITION(klass != NULL);
+    }
+    CONTRACTL_END;
+
     return reinterpret_cast<MonoClass_clr*>(classOfArray)->GetApproxArrayElementTypeHandle().GetSize();
 }
 
@@ -1495,6 +1535,14 @@ extern "C" MonoImage* mono_get_corlib()
 
 extern "C" MonoClassField* mono_class_get_field_from_name(MonoClass *klass, const char *name)
 {
+    CONTRACTL
+    {
+        NOTHROW;
+    GC_NOTRIGGER;
+    PRECONDITION(klass != NULL);
+    }
+    CONTRACTL_END;
+
     MonoClass_clr* mt = reinterpret_cast<MonoClass_clr*>(klass);
 
     ApproxFieldDescIterator fieldDescIterator(mt, ApproxFieldDescIterator::ALL_FIELDS);
@@ -1553,6 +1601,14 @@ extern "C" void mono_jit_parse_options(int argc, char * argv[])
 
 extern "C" gpointer mono_object_unbox(MonoObject* o)
 {
+    CONTRACTL
+    {
+        NOTHROW;
+    GC_NOTRIGGER;
+    PRECONDITION(o != NULL);
+    }
+    CONTRACTL_END;
+
     return (gpointer)reinterpret_cast<MonoObject_clr*>(o)-> UnBox();
 }
 
