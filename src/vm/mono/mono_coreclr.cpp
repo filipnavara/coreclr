@@ -19,6 +19,7 @@ EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 extern "C" HRESULT  GetCLRRuntimeHost(REFIID riid, IUnknown **ppUnk);
 
 typedef Assembly MonoAssembly_clr;
+typedef Assembly MonoImage_clr;
 typedef Object MonoObject_clr;
 typedef FieldDesc MonoClassField_clr; // struct MonoClassField;
 typedef MethodTable MonoClass_clr; //struct MonoClass;
@@ -272,6 +273,17 @@ extern "C" int mono_jit_info_get_code_size(void* jit)
 
 MonoClass * mono_class_from_name(MonoImage *image, const char* name_space, const char *name, bool ignoreCase)
 {
+    CONTRACTL
+    {
+        NOTHROW;
+        GC_NOTRIGGER;
+        // We don't support multiple domains
+        PRECONDITION(image != nullptr);
+        PRECONDITION(name_space != nullptr);
+        PRECONDITION(name != nullptr);
+    }
+    CONTRACTL_END;
+
     auto assembly = (MonoAssembly_clr*)image;
     DomainAssembly* domainAssembly = assembly->GetDomainAssembly();
 
@@ -337,11 +349,11 @@ extern "C" MonoObject* mono_object_new(MonoDomain *domain, MonoClass *klass)
     CONTRACTL
     {
         THROWS;
-    GC_TRIGGERS;
-    MODE_COOPERATIVE;
-    INJECT_FAULT(COMPlusThrowOM()); // TODO: Check if this is applicable here
-    PRECONDITION(domain != NULL);
-    PRECONDITION(klass != NULL);
+        GC_TRIGGERS;
+        MODE_COOPERATIVE;
+        INJECT_FAULT(COMPlusThrowOM()); // TODO: Check if this is applicable here
+        PRECONDITION(domain != NULL);
+        PRECONDITION(klass != NULL);
     }
     CONTRACTL_END;
 
@@ -354,10 +366,10 @@ extern "C" void mono_runtime_object_init(MonoObject *this_obj)
     CONTRACTL
     {
         THROWS;
-    GC_TRIGGERS;
-    MODE_COOPERATIVE;
-    INJECT_FAULT(COMPlusThrowOM()); // TODO: Check if this is applicable here
-    PRECONDITION(this_obj != NULL);
+        GC_TRIGGERS;
+        MODE_COOPERATIVE;
+        INJECT_FAULT(COMPlusThrowOM()); // TODO: Check if this is applicable here
+        PRECONDITION(this_obj != NULL);
     }
     CONTRACTL_END;
 
@@ -428,8 +440,8 @@ extern "C" MonoClassField* mono_class_get_fields(MonoClass* klass, gpointer *ite
     CONTRACTL
     {
         NOTHROW;
-    GC_NOTRIGGER;
-    PRECONDITION(klass != NULL);
+        GC_NOTRIGGER;
+        PRECONDITION(klass != NULL);
     }
     CONTRACTL_END;
 
@@ -543,8 +555,8 @@ extern "C" MonoMethod* mono_class_get_methods(MonoClass* klass, gpointer *iter)
     CONTRACTL
     {
         NOTHROW;
-    GC_NOTRIGGER;
-    PRECONDITION(klass != NULL);
+        GC_NOTRIGGER;
+        PRECONDITION(klass != NULL);
     }
     CONTRACTL_END;
 
@@ -772,8 +784,16 @@ extern "C" char* mono_method_full_name(MonoMethod* method, gboolean signature)
 
 extern "C" MonoImage* mono_assembly_get_image(MonoAssembly *assembly)
 {
-    // TODO
-    return NULL;
+    CONTRACTL
+    {
+        NOTHROW;
+        GC_NOTRIGGER;
+        PRECONDITION(assembly != NULL);
+    }
+    CONTRACTL_END;
+
+    // Assume for now that Assembly == Image
+    return (MonoImage*)assembly;
 }
 
 extern "C" MonoClass* mono_method_get_class(MonoMethod *method)
@@ -1440,7 +1460,17 @@ extern "C" MonoProperty* mono_class_get_property_from_name(MonoClass *klass, con
 
 extern "C" MonoMethod* mono_class_get_method_from_name(MonoClass *klass, const char *name, int param_count)
 {
-    // TODO
+    CONTRACTL
+    {
+        NOTHROW;
+        GC_NOTRIGGER;
+        PRECONDITION(klass != NULL);
+    }
+    CONTRACTL_END;
+
+    MonoClass_clr* klass_clr = (MonoClass_clr*)klass;
+
+    // TODO: implement
     return NULL;
 }
 
@@ -1507,8 +1537,8 @@ extern "C" int mono_array_element_size(MonoClass* classOfArray)
     CONTRACTL
     {
         NOTHROW;
-    GC_NOTRIGGER;
-    PRECONDITION(klass != NULL);
+        GC_NOTRIGGER;
+        PRECONDITION(classOfArray != NULL);
     }
     CONTRACTL_END;
 
