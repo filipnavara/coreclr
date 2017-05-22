@@ -190,13 +190,14 @@ extern "C" MonoDomain* mono_jit_init_version(const char *file, const char* runti
                 break;
             }
         }
+
         wchar_t* appNiPath = appPath;
         wchar_t* nativeDllSearchDirs = appPath;
         wchar_t* appLocalWinmetadata = appPath;
 
         const wchar_t *property_values[] = {
             // TRUSTED_PLATFORM_ASSEMBLIES
-            L"",  // TODO: Add TPA list here
+                  W(""),  // TODO: Add TPA list here
                   // APP_PATHS
                   appPath,
                   // APP_NI_PATHS
@@ -209,7 +210,7 @@ extern "C" MonoDomain* mono_jit_init_version(const char *file, const char* runti
 
         // TODO: This is not safe
         wchar_t  wfile[MAX_PATH];
-        mbstowcs(wfile, file, MAX_PATH); // check if null terminated
+        Wsz_mbstowcs(wfile, file, MAX_PATH); // check if null terminated
 
         DWORD domainId;
         hr = host->CreateAppDomainWithManager(

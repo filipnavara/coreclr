@@ -11,7 +11,7 @@ typedef signed char SInt8;
 typedef signed int SInt32;
 typedef unsigned int UInt32;
 typedef signed long long SInt64;
-typedef unsigned long long UInt64;
+//typedef unsigned long long UInt64; Defined already
 
 // TODO: Add char (utf8 for mono)
 typedef wchar_t mono_char; // used by CoreCLR
