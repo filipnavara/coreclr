@@ -1464,12 +1464,30 @@ extern "C" MonoMethod* mono_class_get_method_from_name(MonoClass *klass, const c
         NOTHROW;
         GC_NOTRIGGER;
         PRECONDITION(klass != NULL);
+        PRECONDITION(name != NULL);
     }
     CONTRACTL_END;
 
     MonoClass_clr* klass_clr = (MonoClass_clr*)klass;
 
-    // TODO: implement
+    // TODO: Check if there is an API to perform this more efficiently
+    auto iterator = MethodTable::MethodIterator(klass_clr);
+    while (iterator.IsValid())
+    {
+        auto method = iterator.GetMethodDesc();
+
+        // TODO: check how to handle properly UTF8 comparison
+        if (strcmp(method->GetName(), name) == 0)
+        {
+            auto methodInst = method->GetMethodInstantiation();
+            if (methodInst.GetNumArgs() == param_count)
+            {
+                return (MonoMethod*)method;
+            }
+        }
+        iterator.Next();
+    }
+
     return NULL;
 }
 
