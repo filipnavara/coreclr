@@ -1,3 +1,5 @@
+#include "MonoCoreClr.h"
+
 #ifdef WIN32
 #define EXPORT_API __declspec(dllexport)
 #else
