@@ -857,8 +857,10 @@ extern "C" MonoClass* mono_class_get_parent(MonoClass *klass)
 
 extern "C" const char* mono_class_get_namespace(MonoClass *klass)
 {
-    // TODO
-    return NULL;
+	MonoClass_clr* clazz = (MonoClass_clr*)klass;
+	LPCUTF8 name, namespaze;
+	clazz->GetMDImport()->GetNameOfTypeDef(clazz->GetCl(), &name, &namespaze);
+    return namespaze;
 }
 
 extern "C" gboolean mono_class_is_subclass_of(MonoClass *klass, MonoClass *klassc, gboolean check_interfaces)
