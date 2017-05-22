@@ -58,8 +58,16 @@ typedef wchar_t mono_char; // used by CoreCLR
 const char* k_MonoLib = "/External/MonoBleedingEdge/monodistribution/lib";
 const char* k_MonoEtc = "/External/MonoBleedingEdge/monodistribution/etc";
 
-int main()
+int main(int argc, char * argv[])
 {
+    if(argc < 2)
+    {
+        printf("Provide path to dll!\n");
+        return 1;
+    }
+
+    std::string dllPath = argv[1];
+
     std::string monoRuntimeFolder = getenv("UNITY_ROOT");
     std::string monoLibFolder = monoRuntimeFolder + k_MonoLib;
     std::string monoEtcFolder = monoRuntimeFolder + k_MonoEtc;
@@ -76,8 +84,8 @@ int main()
         return 1;
     }
     
-    printf("Opening assembly...\n");
-    MonoAssembly* assembly = mono_domain_assembly_open (domain, "coreclr-test.dll");
+    printf("Opening assembly '%s'...\n", dllPath.c_str());
+    MonoAssembly* assembly = mono_domain_assembly_open (domain, dllPath.c_str());
 
     if(assembly == nullptr)
     {
