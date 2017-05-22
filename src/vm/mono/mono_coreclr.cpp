@@ -1371,8 +1371,7 @@ extern "C" MonoAssembly* mono_assembly_open(const char *filename, int *status)
 
 extern "C" gboolean mono_class_is_enum(MonoClass *klass)
 {
-    // TODO
-    return NULL;
+    return (gboolean)reinterpret_cast<MonoClass_clr*>(klass)->IsEnum();
 }
 
 extern "C" MonoType* mono_class_enum_basetype(MonoClass *klass)
@@ -1441,32 +1440,27 @@ extern "C" MonoClass* mono_class_from_mono_type(MonoType *image)
 
 extern "C" int mono_class_get_rank(MonoClass *klass)
 {
-    // TODO
-    return NULL;
+    return reinterpret_cast<MonoClass_clr*>(klass)->GetRank();
 }
 
 extern "C" MonoClass* mono_class_get_element_class(MonoClass *klass)
 {
-    // TODO
-    return NULL;
+    return (MonoClass*)reinterpret_cast<MonoClass_clr*>(klass)->GetApproxArrayElementTypeHandle().AsMethodTable();
 }
 
 extern "C" gboolean mono_unity_class_is_interface(MonoClass* klass)
 {
-    // TODO
-    return NULL;
+    return reinterpret_cast<MonoClass_clr*>(klass)->IsInterface();
 }
 
 extern "C" gboolean mono_unity_class_is_abstract(MonoClass* klass)
 {
-    // TODO
-    return NULL;
+    return reinterpret_cast<MonoClass_clr*>(klass)->IsAbstract();
 }
 
 extern "C" int mono_array_element_size(MonoClass* classOfArray)
 {
-    // TODO
-    return NULL;
+    return reinterpret_cast<MonoClass_clr*>(classOfArray)->GetApproxArrayElementTypeHandle().GetSize();
 }
 
 extern "C" gboolean mono_domain_set(MonoDomain *domain, gboolean force)
@@ -1497,7 +1491,19 @@ extern "C" MonoImage* mono_get_corlib()
 
 extern "C" MonoClassField* mono_class_get_field_from_name(MonoClass *klass, const char *name)
 {
-    // TODO
+    MonoClass_clr* mt = reinterpret_cast<MonoClass_clr*>(klass);
+
+    ApproxFieldDescIterator fieldDescIterator(mt, ApproxFieldDescIterator::ALL_FIELDS);
+    FieldDesc* pField;
+
+    while ((pField = fieldDescIterator.Next()) != NULL)
+    {
+        if(strcmp(pField->GetName(), name) == 0)
+        {
+            return (MonoClassField*)pField;
+        }
+    }
+
     return NULL;
 }
 
@@ -1543,8 +1549,7 @@ extern "C" void mono_jit_parse_options(int argc, char * argv[])
 
 extern "C" gpointer mono_object_unbox(MonoObject* o)
 {
-    // TODO
-    return NULL;
+    return (gpointer)reinterpret_cast<MonoObject_clr*>(o)-> UnBox();
 }
 
 extern "C" MonoObject* mono_custom_attrs_get_attr(MonoCustomAttrInfo *ainfo, MonoClass *attr_klass)
