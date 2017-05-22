@@ -15,6 +15,9 @@ EXPORTS
         ; This cannot change, or else CoreCLR debugging will not work.
         ; See clr\src\DLLS\dbgshim\dbgshim.cpp.
         g_CLREngineMetrics                                  @2 data
+
+        ; mono
+        mono_test_export
         
         ; Unix hosting API
         coreclr_create_delegate
