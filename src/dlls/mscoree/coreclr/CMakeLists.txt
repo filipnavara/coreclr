@@ -99,6 +99,7 @@ set(CORECLR_LIBRARIES
     strongname_wks
     utilcode
     v3binder
+    mono
 )
 
 if(WIN32)
