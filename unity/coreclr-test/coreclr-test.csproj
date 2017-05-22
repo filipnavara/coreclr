@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup Condition=" '$(CORECLR)' == 'true' ">
+    <OutputType>library</OutputType>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(CORECLR)' != 'true' ">
+    <TargetFrameworks>net45</TargetFrameworks>
+    <FrameworkPathOverride>/usr/local/Cellar/mono/4.8.0.520/lib/mono/4.5</FrameworkPathOverride>
+  </PropertyGroup>
+
+</Project>
