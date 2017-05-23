@@ -4,6 +4,7 @@
 #include "assembly.hpp"
 #include "mscoree.h"
 #include "threads.h"
+#include "ecall.h"
 
 #ifdef FEATURE_PAL
 #include "pal.h"
@@ -176,7 +177,10 @@ extern "C" void mono_security_set_mode(MonoSecurityMode)
 
 extern "C" void mono_add_internal_call(const char *name, gconstpointer method)
 {
-    //TODO used for registering all internal functions in mono
+    assert(name != nullptr);
+    assert(method != nullptr);
+
+    ECall::RegisterICall(name, (PCODE)method);
 }
 
 extern "C" void mono_jit_cleanup(MonoDomain *domain)

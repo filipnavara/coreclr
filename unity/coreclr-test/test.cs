@@ -6,13 +6,13 @@ namespace coreclrtest
 {
     class test
     {
-        //[MethodImpl(MethodImplOptions.InternalCall)]
-        //private static extern void InternalMethod();
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private static extern void InternalMethod();
 
         static object GetNumber()
         {
             Console.WriteLine("Test from C#");
-            //InternalMethod();
+            InternalMethod();
             return 12;
         }
     }

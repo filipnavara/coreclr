@@ -116,7 +116,7 @@ void* get_method(const char* functionName)
 const char* k_MonoLib = "/External/MonoBleedingEdge/builds/monodistribution/lib";
 const char* k_MonoEtc = "/External/MonoBleedingEdge/builds/monodistribution/etc";
 
-extern "C" void InternalMethod()
+void InternalMethod()
 {
     printf("Internal method was called\n");
 }

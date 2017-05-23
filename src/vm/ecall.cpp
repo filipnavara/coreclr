@@ -6,13 +6,13 @@
 // Handles our private native calling interface.
 //
 
-
-
 #include "common.h"
 
 #include "ecall.h"
 
 #include "comdelegate.h"
+
+#include "clr_std/vector"
 
 #ifndef DACCESS_COMPILE
 
@@ -98,6 +98,40 @@ PCODE g_FCDynamicallyAssignedImplementations[ECall::NUM_DYNAMICALLY_ASSIGNED_FCA
     #define DYNAMICALLY_ASSIGNED_FCALL_IMPL(id,defaultimpl) GetEEFuncEntryPoint(defaultimpl),
     DYNAMICALLY_ASSIGNED_FCALLS()
 };
+
+struct ICallNameToId
+{
+    LPCWSTR Name;
+    DWORD Id;
+
+    ICallNameToId() : Name(nullptr), Id(0)
+    {
+    }
+
+    ICallNameToId(LPCWSTR name, DWORD id) : Name(name), Id(id)
+    {
+    }
+};
+
+
+class ICallNameToIdTraits : public NoRemoveSHashTraits< DefaultSHashTraits< ICallNameToId > >
+{
+public:
+    typedef PCWSTR key_t;
+    static const ICallNameToId Null() { ICallNameToId e; e.Name = nullptr; return e; }
+    static bool IsNull(const ICallNameToId & e) { return e.Name == nullptr; }
+    static const key_t GetKey(const ICallNameToId & e)
+    {
+        key_t key;
+        key = e.Name;
+        return key;
+    }
+    static count_t Hash(const key_t &str) { return HashiString(str); }
+    static BOOL Equals(const key_t &lhs, const key_t &rhs) { LIMITED_METHOD_CONTRACT; return (_wcsicmp(lhs, rhs) == 0); }
+};
+
+SHash<ICallNameToIdTraits> g_ICallToId;
+std::vector<ECFunc*> g_ICallIdToCode;
 
 void ECall::DynamicallyAssignFCallImpl(PCODE impl, DWORD index)
 {
@@ -209,6 +243,56 @@ static INT FindECIndexForMethod(MethodDesc *pMD, const LPVOID* impls)
     return -1;
 }
 
+INT FindICall(MethodDesc *pMD)
+{
+    // TODO: Lock
+    auto pMT = pMD->GetMethodTable();
+    LPCUTF8 pszNamespace = 0;
+    LPCUTF8 pszName = pMT->GetFullyQualifiedNameInfo(&pszNamespace);
+
+    SString fullMethodName(SString::Utf8Literal, pszNamespace);
+    fullMethodName.AppendUTF8(".");
+    fullMethodName.AppendUTF8(pszName);
+    fullMethodName.AppendUTF8("::");
+    fullMethodName.AppendUTF8(pMD->GetName());
+
+    DWORD id;
+    auto result = g_ICallToId.LookupPtr(fullMethodName);
+    if (result)
+    {
+        return result->Id;
+    }
+    return 0;
+}
+
+bool IsICall(DWORD id)
+{
+    return (id >> 16) == 0xFFFF;
+}
+
+void ECall::RegisterICall(const char* fullMethodName, PCODE code)
+{
+    SString* fullMethodNameUTF8 = new SString(SString::Utf8Literal, fullMethodName);
+    DWORD id;
+    auto result = g_ICallToId.LookupPtr(*fullMethodNameUTF8);
+    assert(!result);
+    auto index = g_ICallIdToCode.size();
+    id = (DWORD)0xFFFF0000 | (DWORD)index;
+    g_ICallToId.AddOrReplace(ICallNameToId(fullMethodNameUTF8->GetUnicode(), id));
+
+    auto eeFuncs = new ECFunc[2];
+    eeFuncs[0].m_dwFlags = 0xffffffffffff0000;
+    eeFuncs[0].m_pImplementation = (LPVOID)code;
+    eeFuncs[0].m_pMethodSig = nullptr;
+    eeFuncs[0].m_szMethodName = nullptr;
+    eeFuncs[1].m_dwFlags = 0xffffffffffff0000 | FCFuncFlag_EndOfArray;
+    eeFuncs[1].m_pImplementation = 0;
+    eeFuncs[1].m_pMethodSig = nullptr;
+    eeFuncs[1].m_szMethodName = nullptr;
+
+    g_ICallIdToCode.push_back(&eeFuncs[0]);
+}
+
 /*******************************************************************************/
 /* ID is formed of 2 USHORTs - class index  in high word, method index in low word.  */
 /* class index starts at 1. id == 0 means no implementation.                    */
@@ -226,6 +310,13 @@ DWORD ECall::GetIDForMethod(MethodDesc *pMD)
     // We should not go here for NGened methods
     _ASSERTE(!pMD->IsZapped());
 
+    // Check any registered ICalls
+    auto id = FindICall(pMD);
+    if (id != 0)
+    {
+        return id;
+    }
+
     INT ImplsIndex = FindImplsIndexForClass(pMD->GetMethodTable());
     if (ImplsIndex < 0)
         return 0;
@@ -242,6 +333,12 @@ static ECFunc *FindECFuncForID(DWORD id)
 
     if (id == 0)
         return NULL;
+
+    if (IsICall(id))
+    {
+        auto indexICall = id & 0xFFFF;
+        return g_ICallIdToCode[indexICall];
+    }
 
     INT ImplsIndex  = (id >> 16);
     INT ECIndex     = (id & 0xffff) - 1;
@@ -328,8 +425,8 @@ PCODE ECall::GetFCallImpl(MethodDesc * pMD, BOOL * pfSharedOrDynamicFCallImpl /*
     }
 #endif // FEATURE_COMINTEROP
 
-    if (!pMD->GetModule()->IsSystem())
-        COMPlusThrow(kSecurityException, BFA_ECALLS_MUST_BE_IN_SYS_MOD);
+    //if (!pMD->GetModule()->IsSystem())
+    //    COMPlusThrow(kSecurityException, BFA_ECALLS_MUST_BE_IN_SYS_MOD);
 
     ECFunc* ret = FindECFuncForMethod(pMD);
 

@@ -88,6 +88,8 @@ class ECall
         static DWORD GetIDForMethod(MethodDesc *pMD);
         static CorInfoIntrinsics GetIntrinsicID(MethodDesc *pMD);
 
+        static void RegisterICall(const char* fullMethodName, PCODE code);
+
         // Some fcalls (delegate ctors and tlbimpl ctors) shared one implementation.
         // We should never patch vtable for these since they have 1:N mapping between
         // MethodDesc and the actual implementation
