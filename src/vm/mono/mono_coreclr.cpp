@@ -872,8 +872,10 @@ extern "C" gboolean mono_class_is_subclass_of(MonoClass *klass, MonoClass *klass
 
 extern "C" const char* mono_class_get_name(MonoClass *klass)
 {
-    // TODO
-    return NULL;
+	MonoClass_clr* clazz = (MonoClass_clr*)klass;
+	LPCUTF8 name, namespaze;
+	clazz->GetMDImport()->GetNameOfTypeDef(clazz->GetCl(), &name, &namespaze);
+	return name;
 }
 
 extern "C" char* mono_type_get_name(MonoType *type)
