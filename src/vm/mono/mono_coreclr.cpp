@@ -363,8 +363,8 @@ MonoClass * mono_class_from_name(MonoImage *image, const char* name_space, const
 {
     CONTRACTL
     {
-        NOTHROW;
-        GC_NOTRIGGER;
+        THROWS;
+        GC_TRIGGERS;
         // We don't support multiple domains
         PRECONDITION(image != nullptr);
         PRECONDITION(name_space != nullptr);
@@ -412,8 +412,8 @@ extern "C" MonoAssembly * mono_domain_assembly_open(MonoDomain *domain, const ch
 {
     CONTRACTL
     {
-        NOTHROW;
-        GC_NOTRIGGER;
+        THROWS;
+        GC_TRIGGERS;
         // We don't support multiple domains
         PRECONDITION(domain == g_RootDomain);
         PRECONDITION(domain != nullptr);
@@ -422,8 +422,11 @@ extern "C" MonoAssembly * mono_domain_assembly_open(MonoDomain *domain, const ch
     CONTRACTL_END;
 
     SString assemblyPath(SString::Utf8, name);
+    auto domain_clr = (MonoDomain_clr*)domain;
+
     auto assembly = AssemblySpec::LoadAssembly(assemblyPath.GetUnicode());
-    assembly->GetDomainAssembly((MonoDomain_clr*)domain);
+    assembly->EnsureActive();
+    //auto domainAssembly = assembly->GetDomainAssembly((MonoDomain_clr*)domain);
     return (MonoAssembly*)assembly;
 }
 
@@ -483,6 +486,12 @@ extern "C" MonoObject* mono_runtime_invoke(MonoMethod *method, void *obj, void *
     MONO_ASSERTE(params == NULL);  // TODO: Handle params to ARG_SLOT
 
     MethodTable* ptable;
+
+    auto thread = GetThread();
+    if (thread == nullptr)
+    {
+        thread = SetupThreadNoThrow();
+    }
 
     OBJECTREF objref = ObjectToOBJECTREF((Object*)obj);
 
@@ -1614,8 +1623,8 @@ extern "C" MonoMethod* mono_class_get_method_from_name(MonoClass *klass, const c
 {
     CONTRACTL
     {
-        NOTHROW;
-        GC_NOTRIGGER;
+        THROWS;
+        GC_TRIGGERS;
         PRECONDITION(klass != NULL);
         PRECONDITION(name != NULL);
     }
