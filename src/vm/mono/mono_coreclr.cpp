@@ -30,6 +30,12 @@ typedef MethodDesc MonoMethod_clr;
 typedef OBJECTREF MonoObjectRef_clr;
 typedef TypeHandle MonoType_clr;
 
+static inline MonoType_clr MonoType_clr_from_MonoType(MonoType* type)
+{
+    return MonoType_clr::FromPtr(type);
+}
+
+
 // dummy function just to test that it is exported in coreclr so/dll
 extern "C" EXPORT_API void mono_test_export()
 {
@@ -1527,7 +1533,7 @@ extern "C" MonoMethod* mono_class_get_method_from_name(MonoClass *klass, const c
 
 extern "C" MonoClass* mono_class_from_mono_type(MonoType *image)
 {
-    MonoClass_clr* klass = reinterpret_cast<MonoType_clr*>(image)->AsMethodTable();
+    MonoClass_clr* klass = MonoType_clr_from_MonoType(image).AsMethodTable();
     return (MonoClass*)klass;
 }
 
