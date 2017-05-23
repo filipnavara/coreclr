@@ -839,7 +839,9 @@ extern "C" MonoClass* mono_object_get_class(MonoObject *obj)
 
 extern "C" MonoObject* mono_object_isinst(MonoObject *obj, MonoClass* klass)
 {
-    // TODO
+    MonoClass* clazz = mono_object_get_class(obj);
+    if (mono_class_is_subclass_of(clazz, klass, TRUE))
+        return obj;
     return NULL;
 }
 
