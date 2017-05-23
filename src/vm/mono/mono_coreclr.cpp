@@ -1133,8 +1133,9 @@ extern "C" void mono_runtime_unhandled_exception_policy_set(MonoRuntimeUnhandled
 
 extern "C" MonoClass* mono_class_get_nesting_type(MonoClass *klass)
 {
-    // TODO (?)
-    return NULL;
+    MonoClass_clr* clazz = (MonoClass_clr*)klass;
+    MonoClass_clr* ret = ClassLoader::LoadTypeDefOrRefOrSpecThrowing(clazz->GetModule(), clazz->GetEnclosingCl(), NULL).AsMethodTable();
+    return (MonoClass*)ret;
 }
 
 extern "C" MonoVTable* mono_class_vtable(MonoDomain *domain, MonoClass *klass)
