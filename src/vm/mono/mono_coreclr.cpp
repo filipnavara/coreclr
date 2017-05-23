@@ -1252,8 +1252,9 @@ extern "C" int mono_image_get_table_rows(MonoImage *image, int table_id)
 
 extern "C" MonoClass* mono_class_get(MonoImage *image, guint32 type_token)
 {
-    // TODO
-    return NULL;
+    DomainAssembly* domainAssembly = reinterpret_cast<MonoImage_clr*>(image)->GetDomainAssembly();
+    MonoClass_clr* klass = ClassLoader::LoadTypeDefOrRefOrSpecThrowing(domainAssembly->GetModule(), (mdToken)type_token, NULL).AsMethodTable();
+    return (MonoClass*)klass;
 }
 
 extern "C" gboolean mono_metadata_signature_equal(MonoMethodSignature *sig1, MonoMethodSignature *sig2)
