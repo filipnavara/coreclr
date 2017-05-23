@@ -52,8 +52,8 @@ typedef void* mono_liveness_world_state_callback;
 #endif // !_DEBUG
 
 
-#include "MonoTypes.h"
+#include "MonoTypesClr.h"
 #include "MonoObjectRef.h"
-#include "MonoFunctions.h"
+#include "MonoFunctionsClr.h"
 
 #endif //MONOCORECLR_H
