@@ -125,8 +125,13 @@ int main(int argc, char * argv[])
     std::string dllPath = argv[1];
 
     std::string monoRuntimeFolder = getenv("UNITY_ROOT");
+#if !defined(USE_CORECLR)
     std::string monoLibFolder = monoRuntimeFolder + k_MonoLib;
     std::string monoEtcFolder = monoRuntimeFolder + k_MonoEtc;
+#else
+    std::string monoLibFolder = "/Users/sergeyyanchi/development/hackweek2017/coreclr/bin/Product/OSX.x64.Debug";
+    std::string monoEtcFolder = monoRuntimeFolder + k_MonoEtc;
+#endif
 
     printf("Setting up directories for Mono...\n");
     mono_set_dirs(monoLibFolder.c_str(), monoEtcFolder.c_str());

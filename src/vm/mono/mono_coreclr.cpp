@@ -173,12 +173,28 @@ extern "C" MonoDomain* mono_jit_init_version(const char *file, const char* runti
     {
         HRESULT hr;
         hr = GetCLRRuntimeHost(IID_ICLRRuntimeHost2, (IUnknown**)&g_CLRRuntimeHost);
+
+        if(FAILED(hr))
+        {
+            return nullptr;
+        }
+
         ICLRRuntimeHost2* host = g_CLRRuntimeHost;
 
 		hr = host->SetStartupFlags(static_cast<STARTUP_FLAGS>(
 			STARTUP_FLAGS::STARTUP_CONCURRENT_GC | STARTUP_FLAGS::STARTUP_SINGLE_APPDOMAIN | STARTUP_FLAGS::STARTUP_LOADER_OPTIMIZATION_SINGLE_DOMAIN));
+        
+        if(FAILED(hr))
+        {
+            return nullptr;
+        }
 
 		hr = host->Start();
+
+        if(FAILED(hr))
+        {
+            return nullptr;
+        }
 
         const wchar_t *property_keys[] = {
             W("TRUSTED_PLATFORM_ASSEMBLIES"),
@@ -238,6 +254,11 @@ extern "C" MonoDomain* mono_jit_init_version(const char *file, const char* runti
             property_keys,
             property_values,
             &domainId);
+
+        if(FAILED(hr))
+        {
+            return nullptr;
+        }
     }
 
     AppDomain *pCurDomain = SystemDomain::GetCurrentDomain();
