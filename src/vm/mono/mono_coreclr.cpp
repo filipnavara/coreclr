@@ -833,8 +833,8 @@ extern "C" MonoClass* mono_method_get_class(MonoMethod *method)
 
 extern "C" MonoClass* mono_object_get_class(MonoObject *obj)
 {
-    // TODO
-    return NULL;
+    MonoClass_clr* klass = reinterpret_cast<MonoObject_clr*>(obj)->GetTypeHandle().AsMethodTable();
+    return (MonoClass*)klass;
 }
 
 extern "C" MonoObject* mono_object_isinst(MonoObject *obj, MonoClass* klass)
