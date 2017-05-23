@@ -29,6 +29,7 @@ typedef AppDomain MonoDomain_clr; //struct MonoDomain;
 typedef MethodDesc MonoMethod_clr;
 typedef OBJECTREF MonoObjectRef_clr;
 typedef TypeHandle MonoType_clr;
+typedef ArrayBase MonoArray_clr;
 
 static inline MonoType_clr MonoType_clr_from_MonoType(MonoType* type)
 {
@@ -1015,11 +1016,19 @@ extern "C" MonoClass* mono_get_double_class()
 
 extern "C" MonoArray* mono_array_new(MonoDomain *domain, MonoClass *eclass, guint32 n)
 {
-    // TODO
-    return NULL;
+    CONTRACTL{
+        THROWS;
+        GC_TRIGGERS;
+        MODE_COOPERATIVE; // returns an objref without pinning it => cooperative
+        PRECONDITION(domain != nullptr);
+        PRECONDITION(eclass != nullptr);
+    } CONTRACTL_END;
+
+    // TODO: handle large heap flag?
+    auto arrayRef = AllocateObjectArray(n, (MonoClass_clr*)eclass);
+    return (MonoArray*)OBJECTREFToObject(arrayRef);;
 }
 
-//DO_API(MonoArray *, mono_array_new_specific, (MonoVTable *vtable, guint32 n))
 extern "C" MonoArray* mono_array_new_full(MonoDomain *domain, MonoClass *array_class, guint32 *lengths, guint32 *lower_bounds)
 {
     // TODO
