@@ -28,6 +28,7 @@ typedef MethodTable MonoClass_clr; //struct MonoClass;
 typedef AppDomain MonoDomain_clr; //struct MonoDomain;
 typedef MethodDesc MonoMethod_clr;
 typedef OBJECTREF MonoObjectRef_clr;
+typedef TypeHandle MonoType_clr;
 
 // dummy function just to test that it is exported in coreclr so/dll
 extern "C" EXPORT_API void mono_test_export()
