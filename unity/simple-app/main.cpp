@@ -95,7 +95,10 @@ void* get_method(const char* functionName)
     if(func == nullptr)
     {
         printf("Failed to load function '%s'\n", functionName);
-        exit(1);
+        // Don't hard exit as some functions are not exported while still exposed by MonoFunctions.h
+        // So we might get a null access exception if we are using a function
+        // that was not found, but we can identify them when it is failing
+        // exit(1);
         return nullptr;
     }
     return func;
@@ -198,12 +201,7 @@ int main(int argc, char * argv[])
     printf("Invoke result: %i\n", int_result);
 
     printf("Cleaning up...\n");
-
-#ifdef USE_CONSOLEBRANCH_MONO
-    mono_jit_cleanup(domain);
-#else
     mono_unity_jit_cleanup(domain);
-#endif
 
     dlclose(s_MonoLibrary);
 

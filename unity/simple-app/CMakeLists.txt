@@ -20,10 +20,6 @@ include_directories(${UNITY_ROOT}/Runtime/Mono)
 include_directories(${UNITY_ROOT}/External/MonoBleedingEdge)
 include_directories(${CLR_DIR}/src/inc)
 
-if(MSVC)
-add_definitions(-DUSE_CONSOLEBRANCH_MONO)
-endif()
-
 add_executable(${PROJECT_NAME_STR} ${PROJECT_SRC_FILES})
 target_compile_features(${PROJECT_NAME_STR} PRIVATE cxx_range_for)
 target_compile_definitions(${PROJECT_NAME_STR} PRIVATE ENABLE_MONO=1 PLATFORM_STANDALONE=1)

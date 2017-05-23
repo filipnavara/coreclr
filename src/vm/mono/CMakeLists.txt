@@ -18,9 +18,6 @@ add_definitions(-DENABLE_MONO)
 add_definitions(-DPLATFORM_STANDALONE)
 include_directories(${UNITY_ROOT}/Runtime/Mono)
 
-if(MSVC)
-add_definitions(-DUSE_CONSOLEBRANCH_MONO)
-endif()
 # add_definitions(-DUNITY_EDITOR)
 # add_definitions(-DMONO_2_12)
 
