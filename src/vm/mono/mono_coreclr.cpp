@@ -837,8 +837,8 @@ extern "C" MonoObject* mono_object_isinst(MonoObject *obj, MonoClass* klass)
 
 extern "C" gboolean mono_class_is_valuetype(MonoClass *klass)
 {
-    // TODO
-    return FALSE;
+    MonoClass_clr* clazz = (MonoClass_clr*)klass;
+    return (gboolean)clazz->IsValueType();
 }
 
 extern "C" guint32 mono_signature_get_param_count(MonoMethodSignature *sig)
