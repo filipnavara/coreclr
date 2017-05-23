@@ -1161,8 +1161,8 @@ extern "C" MonoReflectionMethod* mono_method_get_object(MonoDomain *domain, Mono
 
 extern "C" MonoMethodSignature* mono_method_signature(MonoMethod *method)
 {
-    // TODO (?)
-    return NULL;
+    MonoMethodSignature_clr* sig = reinterpret_cast<MonoMethod_clr*>(method)->GetSignature().GetRawSig();
+    return (MonoMethodSignature*)sig;
 }
 
 extern "C" MonoType* mono_signature_get_params(MonoMethodSignature *sig, gpointer *iter)
