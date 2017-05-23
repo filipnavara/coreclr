@@ -801,8 +801,7 @@ extern "C" int mono_type_get_type(MonoType *type)
 
 extern "C" const char* mono_method_get_name(MonoMethod *method)
 {
-    // TODO
-    return NULL;
+    return reinterpret_cast<MonoMethod_clr*>(method)->GetName();
 }
 
 extern "C" char* mono_method_full_name(MonoMethod* method, gboolean signature)
