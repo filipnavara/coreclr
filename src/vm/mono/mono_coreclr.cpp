@@ -902,6 +902,13 @@ extern "C" gboolean mono_class_is_subclass_of(MonoClass *klass, MonoClass *klass
     {
         if (clazz == (MonoClass_clr*)klassc)
             return TRUE;
+        if (check_interfaces)
+        {
+            auto ifaceIter = clazz->IterateInterfaceMap();
+            while (ifaceIter.Next())
+                if (ifaceIter.GetInterface() == (MonoClass_clr*)klassc)
+                    return TRUE;
+        }
         clazz = clazz->GetParentMethodTable();
     }
     while (clazz != NULL);
