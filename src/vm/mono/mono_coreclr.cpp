@@ -1807,11 +1807,19 @@ extern "C" void mono_unity_liveness_free_struct(void* state)
 {
 }
 
+#if USE_CONSOLEBRANCH_MONO
+extern "C" void* mono_unity_liveness_calculation_begin(MonoClass * filter, int max_object_count, mono_register_object_callback callback, void* userdata)
+{
+    // TODO
+    return NULL;
+}
+#else
 extern "C" void* mono_unity_liveness_calculation_begin(MonoClass * filter, int max_object_count, mono_register_object_callback callback, void* userdata, mono_liveness_world_state_callback world_started_callback, mono_liveness_world_state_callback world_stopped_callback)
 {
     // TODO
     return NULL;
 }
+#endif
 
 extern "C" void mono_unity_liveness_calculation_end(void* state)
 {
