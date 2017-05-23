@@ -652,7 +652,7 @@ extern "C" const char* mono_image_get_name(MonoImage *image)
     {
         NOTHROW;
     GC_NOTRIGGER;
-    PRECONDITION(klass != NULL);
+    PRECONDITION(image != NULL);
     }
     CONTRACTL_END;
 
