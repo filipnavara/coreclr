@@ -172,7 +172,7 @@ extern "C" MonoDomain* mono_jit_init_version(const char *file, const char* runti
     if (!g_CLRRuntimeHost)
     {
         HRESULT hr;
-        hr = GetCLRRuntimeHost(IID_ICLRRuntimeHost2, (IUnknown**)&g_CLRRuntimeHost);
+        hr = GetCLRRuntimeHost(IID_ICLRRuntimeHost4, (IUnknown**)&g_CLRRuntimeHost);
 
         if(FAILED(hr))
         {
