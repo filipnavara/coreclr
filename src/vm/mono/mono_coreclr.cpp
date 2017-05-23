@@ -887,8 +887,15 @@ extern "C" const char* mono_class_get_namespace(MonoClass *klass)
 
 extern "C" gboolean mono_class_is_subclass_of(MonoClass *klass, MonoClass *klassc, gboolean check_interfaces)
 {
-    // TODO
-    return NULL;
+    MonoClass_clr* clazz = (MonoClass_clr*)klass;
+    do
+    {
+        if (clazz == (MonoClass_clr*)klassc)
+            return TRUE;
+        clazz = clazz->GetParentMethodTable();
+    }
+    while (clazz != NULL);
+    return FALSE;
 }
 
 extern "C" const char* mono_class_get_name(MonoClass *klass)
