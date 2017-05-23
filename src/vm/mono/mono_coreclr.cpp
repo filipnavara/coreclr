@@ -36,6 +36,8 @@ typedef AppDomain MonoDomain_clr; //struct MonoDomain;
 typedef MethodDesc MonoMethod_clr;
 typedef OBJECTREF MonoObjectRef_clr;
 typedef TypeHandle MonoType_clr;
+typedef ArrayBase MonoArray_clr;
+typedef const COR_SIGNATURE MonoMethodSignature_clr;
 
 static inline MonoType_clr MonoType_clr_from_MonoType(MonoType* type)
 {
@@ -875,8 +877,7 @@ extern "C" int mono_type_get_type(MonoType *type)
 
 extern "C" const char* mono_method_get_name(MonoMethod *method)
 {
-    // TODO
-    return NULL;
+    return reinterpret_cast<MonoMethod_clr*>(method)->GetName();
 }
 
 extern "C" char* mono_method_full_name(MonoMethod* method, gboolean signature)
@@ -907,13 +908,15 @@ extern "C" MonoClass* mono_method_get_class(MonoMethod *method)
 
 extern "C" MonoClass* mono_object_get_class(MonoObject *obj)
 {
-    // TODO
-    return NULL;
+    MonoClass_clr* klass = reinterpret_cast<MonoObject_clr*>(obj)->GetTypeHandle().AsMethodTable();
+    return (MonoClass*)klass;
 }
 
 extern "C" MonoObject* mono_object_isinst(MonoObject *obj, MonoClass* klass)
 {
-    // TODO
+    MonoClass* clazz = mono_object_get_class(obj);
+    if (mono_class_is_subclass_of(clazz, klass, TRUE))
+        return obj;
     return NULL;
 }
 
@@ -974,6 +977,13 @@ extern "C" gboolean mono_class_is_subclass_of(MonoClass *klass, MonoClass *klass
     {
         if (clazz == (MonoClass_clr*)klassc)
             return TRUE;
+        if (check_interfaces)
+        {
+            auto ifaceIter = clazz->IterateInterfaceMap();
+            while (ifaceIter.Next())
+                if (ifaceIter.GetInterface() == (MonoClass_clr*)klassc)
+                    return TRUE;
+        }
         clazz = clazz->GetParentMethodTable();
     }
     while (clazz != NULL);
@@ -1090,11 +1100,19 @@ extern "C" MonoClass* mono_get_double_class()
 
 extern "C" MonoArray* mono_array_new(MonoDomain *domain, MonoClass *eclass, guint32 n)
 {
-    // TODO
-    return NULL;
+    CONTRACTL{
+        THROWS;
+        GC_TRIGGERS;
+        MODE_COOPERATIVE; // returns an objref without pinning it => cooperative
+        PRECONDITION(domain != nullptr);
+        PRECONDITION(eclass != nullptr);
+    } CONTRACTL_END;
+
+    // TODO: handle large heap flag?
+    auto arrayRef = AllocateObjectArray(n, (MonoClass_clr*)eclass);
+    return (MonoArray*)OBJECTREFToObject(arrayRef);;
 }
 
-//DO_API(MonoArray *, mono_array_new_specific, (MonoVTable *vtable, guint32 n))
 extern "C" MonoArray* mono_array_new_full(MonoDomain *domain, MonoClass *array_class, guint32 *lengths, guint32 *lower_bounds)
 {
     // TODO
@@ -1103,8 +1121,27 @@ extern "C" MonoArray* mono_array_new_full(MonoDomain *domain, MonoClass *array_c
 
 extern "C" MonoClass * mono_array_class_get(MonoClass *eclass, guint32 rank)
 {
-    // TODO
-    return NULL;
+    CONTRACTL{
+        STANDARD_VM_CHECK;
+        PRECONDITION(eclass != nullptr);
+        PRECONDITION(rank > 0);
+    } CONTRACTL_END;
+
+    // TODO: We do not make any caching here
+    // Might be a problem compare to mono implem that is caching
+    // (clients might expect that for a same eclass+rank, we get the same array class pointer)
+
+    auto eclass_clr = (MonoClass_clr*)eclass;
+    auto domain_clr = (MonoDomain_clr*)g_RootDomain;
+
+    auto classModule = eclass_clr->GetModule();
+    auto kind = rank == 1 ? ELEMENT_TYPE_SZARRAY : ELEMENT_TYPE_ARRAY;
+
+    // TODO: Is it ok to use a tracker like this?
+    AllocMemTracker amTracker;
+    auto arrayMT = classModule->CreateArrayMethodTable(eclass_clr, kind, rank, &amTracker);
+
+    return (MonoClass*)arrayMT;
 }
 
 extern "C" gint32 mono_class_array_element_size(MonoClass *ac)
@@ -1208,8 +1245,9 @@ extern "C" void mono_runtime_unhandled_exception_policy_set(MonoRuntimeUnhandled
 
 extern "C" MonoClass* mono_class_get_nesting_type(MonoClass *klass)
 {
-    // TODO (?)
-    return NULL;
+    MonoClass_clr* clazz = (MonoClass_clr*)klass;
+    MonoClass_clr* ret = ClassLoader::LoadTypeDefOrRefOrSpecThrowing(clazz->GetModule(), clazz->GetEnclosingCl(), NULL).AsMethodTable();
+    return (MonoClass*)ret;
 }
 
 extern "C" MonoVTable* mono_class_vtable(MonoDomain *domain, MonoClass *klass)
@@ -1226,8 +1264,8 @@ extern "C" MonoReflectionMethod* mono_method_get_object(MonoDomain *domain, Mono
 
 extern "C" MonoMethodSignature* mono_method_signature(MonoMethod *method)
 {
-    // TODO (?)
-    return NULL;
+    MonoMethodSignature_clr* sig = reinterpret_cast<MonoMethod_clr*>(method)->GetSignature().GetRawSig();
+    return (MonoMethodSignature*)sig;
 }
 
 extern "C" MonoType* mono_signature_get_params(MonoMethodSignature *sig, gpointer *iter)
@@ -1541,8 +1579,7 @@ extern "C" guint32 mono_object_get_size(MonoObject *obj)
 
 extern "C" guint32 mono_class_get_type_token(MonoClass *klass)
 {
-    // TODO
-    return NULL;
+    return (guint32)reinterpret_cast<MonoClass_clr*>(klass)->GetTypeID();
 }
 
 extern "C" const char* mono_image_get_filename(MonoImage *image)

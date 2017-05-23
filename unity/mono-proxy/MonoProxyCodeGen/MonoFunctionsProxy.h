@@ -1,0 +1,5 @@
+#define DO_API(r,n,p)	|r|n|p
+#define PLATFORM_STANDALONE 1
+#define PLATFORM_WIN 1
+#define ENABLE_MONO_MEMORY_PROFILER 1
+#include <MonoFunctions.h>
