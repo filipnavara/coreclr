@@ -76,7 +76,7 @@ void* get_handle()
 #if defined(__APPLE__)
     std::string monoRuntimeFolder = "/Users/sergeyyanchi/development/hackweek2017/coreclr/bin/Product/OSX.x64.Debug/libcoreclr.dylib";
 #else
-#error("Specify paths");
+    std::string monoRuntimeFolder = "C:\\Code\\dotnet\\coreclr\\bin\\Product\\Windows_NT.x64.Debug\\coreclr.dll";
 #endif
 #endif
         printf("Loading Mono from '%s'...\n", monoRuntimeFolder.c_str());
@@ -140,7 +140,8 @@ int main(int argc, char * argv[])
     std::string monoLibFolder = "/usr/local/share/dotnet/shared/Microsoft.NETCore.App/2.0.0-preview1-002111-00";
     std::string monoEtcFolder = "/Users/sergeyyanchi/development/hackweek2017/coreclr/bin/Product/OSX.x64.Debug";
 #else
-#error("Specify paths");
+    std::string monoLibFolder = "C:\\Program Files\\dotnet\\shared\\Microsoft.NETCore.App\\2.0.0-preview1-002111-00";
+    std::string monoEtcFolder = "C:\\Code\\dotnet\\coreclr\\bin\\Product\\Windows_NT.x64.Debug";
 #endif
 #endif
 
