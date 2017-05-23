@@ -11,4 +11,4 @@ DO_API(void, mono_debug_assert_dialog, (const char *szFile, int iLine, const cha
 DO_API(gboolean, mono_gc_preemptive, (gboolean enable))
 
 // Include regular Unity Mono functions
-#include "MonoFunctions.h"
+#include <MonoFunctions.h>
