@@ -30,6 +30,7 @@ typedef MethodDesc MonoMethod_clr;
 typedef OBJECTREF MonoObjectRef_clr;
 typedef TypeHandle MonoType_clr;
 typedef ArrayBase MonoArray_clr;
+typedef const COR_SIGNATURE MonoMethodSignature_clr;
 
 static inline MonoType_clr MonoType_clr_from_MonoType(MonoType* type)
 {
