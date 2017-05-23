@@ -874,8 +874,8 @@ extern "C" MonoString* mono_string_from_utf16(const gunichar2* text)
 
 extern "C" MonoClass* mono_class_get_parent(MonoClass *klass)
 {
-    // TODO
-    return NULL;
+    MonoClass_clr* parent = reinterpret_cast<MonoClass_clr*>(klass)->GetParentMethodTable();
+    return (MonoClass*)parent;
 }
 
 extern "C" const char* mono_class_get_namespace(MonoClass *klass)
