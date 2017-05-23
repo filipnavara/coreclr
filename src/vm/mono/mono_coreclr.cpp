@@ -1169,8 +1169,8 @@ extern "C" MonoType* mono_signature_get_return_type(MonoMethodSignature *sig)
 
 extern "C" MonoType* mono_class_get_type(MonoClass *klass)
 {
-    // TODO (?)
-    return NULL;
+    TypeHandle h(reinterpret_cast<MonoClass_clr*>(klass));
+    return (MonoType*)h.AsPtr();
 }
 
 #if !UNITY_XBOXONE
