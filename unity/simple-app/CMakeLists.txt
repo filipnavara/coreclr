@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 2.8.12)
 
 set(PROJECT_NAME_STR mono_test_app)
-project(${PROJECT_NAME_STR} CXX)
+project(${PROJECT_NAME_STR})
 
 if ("${UNITY_ROOT}" STREQUAL "")
     set(UNITY_ROOT "$ENV{UNITY_ROOT}")

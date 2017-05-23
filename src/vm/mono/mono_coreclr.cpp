@@ -5,10 +5,16 @@
 #include "mscoree.h"
 #include "threads.h"
 
+#ifdef FEATURE_PAL
+#include "pal.h"
+#endif // FEATURE_PAL
+
 #ifdef WIN32
 #define EXPORT_API __declspec(dllexport)
+#define SPLITTER W(";")
 #else
 #define EXPORT_API __attribute__((visibility("default")))
+#define SPLITTER W(":")
 #endif
 
 ICLRRuntimeHost2* g_CLRRuntimeHost;
@@ -16,6 +22,7 @@ MonoDomain* g_RootDomain;
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 
 char s_AssemblyDir[MAX_PATH] = { 0 };
+char s_EtcDir[MAX_PATH] = { 0 };
 
 // Import this function manually as it is not defined in a header
 extern "C" HRESULT  GetCLRRuntimeHost(REFIID riid, IUnknown **ppUnk);
@@ -174,12 +181,64 @@ extern "C" MonoDomain* mono_jit_init(const char *file)
     return mono_jit_init_version(file, "4.0");
 }
 
+void list_tpa(const wchar_t* searchPath, SString& tpa)
+{
+    SString searchPattern = searchPath;
+    searchPattern += W("/*.dll");
+    WIN32_FIND_DATAW findData;
+    HANDLE fileHandle = FindFirstFileW(searchPattern.GetUnicode(), &findData);
+
+    if (fileHandle != INVALID_HANDLE_VALUE)
+    {
+        do
+        {
+            wchar_t pathToAdd[MAX_PATH];
+            wcscpy_s(pathToAdd, MAX_PATH, searchPath);
+            wcscat_s(pathToAdd, MAX_PATH, W("/"));
+            wcscat_s(pathToAdd, MAX_PATH, findData.cFileName);
+
+            tpa += pathToAdd;
+            tpa += SPLITTER;
+        } while (FindNextFileW(fileHandle, &findData));
+        FindClose(fileHandle);
+    }
+}
+
 extern "C" MonoDomain* mono_jit_init_version(const char *file, const char* runtime_version)
 {
     if (!g_CLRRuntimeHost)
     {
+#if defined(__APPLE__)
+        uint32_t lenActualPath = 0;
+        const char* entrypointExecutable = "/Users/sergeyyanchi/development/hackweek2017/coreclr/unity/simple-app/build/mono_test_app";
+        /*if (_NSGetExecutablePath(nullptr, &lenActualPath) == -1)
+        {
+            // OSX has placed the actual path length in lenActualPath,
+            // so re-attempt the operation
+            entrypointExecutable = new char[lenActualPath + 1];
+            entrypointExecutable[lenActualPath] = '\0';
+            if (_NSGetExecutablePath(entrypointExecutable, &lenActualPath) == -1)
+            {
+                delete [] entrypointExecutable;
+                return nullptr;
+            }
+        }
+        else
+        {
+            return nullptr;
+        }*/
+
+        DWORD error = PAL_InitializeCoreCLR(entrypointExecutable);
+
+        // If PAL initialization failed, then we should return right away and avoid
+        // calling any other APIs because they can end up calling into the PAL layer again.
+        if (error != S_OK)
+        {
+            return nullptr;
+        }
+#endif
         HRESULT hr;
-        hr = GetCLRRuntimeHost(IID_ICLRRuntimeHost4, (IUnknown**)&g_CLRRuntimeHost);
+        hr = GetCLRRuntimeHost(IID_ICLRRuntimeHost2, (IUnknown**)&g_CLRRuntimeHost);
 
         if(FAILED(hr))
         {
@@ -207,28 +266,33 @@ extern "C" MonoDomain* mono_jit_init_version(const char *file, const char* runti
             W("TRUSTED_PLATFORM_ASSEMBLIES"),
             W("APP_PATHS"),
             W("APP_NI_PATHS"),
-            W("NATIVE_DLL_SEARCH_DIRECTORIES"),
-            W("APP_LOCAL_WINMETADATA")
+            W("NATIVE_DLL_SEARCH_DIRECTORIES")
         };
 
         wchar_t appPath[MAX_PATH] = { 0 };
         Wsz_mbstowcs(appPath, s_AssemblyDir, MAX_PATH);
 
-        wchar_t* appNiPath = appPath;
-        wchar_t* nativeDllSearchDirs = appPath;
-        wchar_t* appLocalWinmetadata = appPath;
+        wchar_t etcPath[MAX_PATH] = { 0 };
+        Wsz_mbstowcs(etcPath, s_EtcDir, MAX_PATH);
+
+        SString tpa;
+        list_tpa(appPath, tpa);
+
+        SString appNiPaths;
+        appNiPaths += appPath;
+        appNiPaths+= SPLITTER;
+        appNiPaths += appPath;
+
+        SString nativeDllSearchDirs;
+        nativeDllSearchDirs += appPath;
+        nativeDllSearchDirs += SPLITTER;
+        nativeDllSearchDirs += etcPath;
 
         const wchar_t *property_values[] = {
-            // TRUSTED_PLATFORM_ASSEMBLIES
-                  W(""),  // TODO: Add TPA list here
-                  // APP_PATHS
+                  tpa.GetUnicode(),
                   appPath,
-                  // APP_NI_PATHS
-                  appNiPath,
-                  // NATIVE_DLL_SEARCH_DIRECTORIES
-                  nativeDllSearchDirs,
-                  // APP_LOCAL_WINMETADATA
-                  appLocalWinmetadata
+                  appNiPaths.GetUnicode(),
+                  nativeDllSearchDirs.GetUnicode()
         };
 
         // TODO: This is not safe
@@ -314,6 +378,13 @@ MonoClass * mono_class_from_name(MonoImage *image, const char* name_space, const
     SString className(SString::Utf8, name);
 
     SString fullTypeName(nameSpace, dot, className);
+
+    TypeHandle retTypeHandle1 = TypeName::GetTypeFromAssembly(fullTypeName.GetUnicode(), assembly, FALSE);
+
+    if (!retTypeHandle1.IsNull())
+    {
+        return (MonoClass*)retTypeHandle1.AsMethodTable();
+    }
 
     TypeHandle retTypeHandle = TypeName::GetTypeManaged(fullTypeName.GetUnicode(), domainAssembly, FALSE, ignoreCase, assembly->IsIntrospectionOnly(), TRUE, NULL, FALSE, (OBJECTREF*)NULL); // TODO: We don't pass a keepAlive object. Might be problematic for collectible?
 
@@ -413,11 +484,15 @@ extern "C" MonoObject* mono_runtime_invoke(MonoMethod *method, void *obj, void *
 
     OBJECTREF objref = ObjectToOBJECTREF((Object*)obj);
 
-    MethodDescCallSite invoker((MonoMethod_clr*)method, &objref);
+    {
+        GCX_COOP();
 
-    // TODO: Convert params to ARG_SLOT
-    OBJECTREF result = invoker.Call_RetOBJECTREF((ARG_SLOT*)NULL);
-    return (MonoObject*)OBJECTREFToObject(result);
+        MethodDescCallSite invoker((MonoMethod_clr*)method, &objref);
+
+        // TODO: Convert params to ARG_SLOT
+        OBJECTREF result = invoker.Call_RetOBJECTREF((ARG_SLOT*)NULL);
+        return (MonoObject*)OBJECTREFToObject(result);
+    }
 }
 
 extern "C" void mono_field_set_value(MonoObject *obj, MonoClassField *field, void *value)
@@ -1680,6 +1755,7 @@ extern "C" void mono_config_parse(const char *filename)
 extern "C" void mono_set_dirs(const char *assembly_dir, const char *config_dir)
 {
     strcpy(s_AssemblyDir, assembly_dir);
+    strcpy(s_EtcDir, assembly_dir);
 }
 
 //DO_API(void,ves_icall_System_AppDomain_InternalUnload,(int domain_id))

@@ -1,13 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup Condition=" '$(CORECLR)' == 'true' ">
+  <PropertyGroup>
     <OutputType>library</OutputType>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(CORECLR)' != 'true' ">
-    <TargetFrameworks>net45</TargetFrameworks>
-    <OutputType>library</OutputType>
   </PropertyGroup>
 
 </Project>

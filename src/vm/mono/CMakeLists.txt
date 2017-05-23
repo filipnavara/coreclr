@@ -22,3 +22,4 @@ include_directories(${UNITY_ROOT}/Runtime/Mono)
 # add_definitions(-DMONO_2_12)
 
 add_library_clr(mono ${VM_SOURCES_MONO})
+target_compile_features(mono PRIVATE cxx_range_for)

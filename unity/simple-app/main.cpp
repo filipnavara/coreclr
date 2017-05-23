@@ -9,7 +9,7 @@
 #include <dlfcn.h>
 #endif
 
-//#define USE_CORECLR
+#define USE_CORECLR
 
 typedef signed short SInt16;
 
@@ -73,7 +73,11 @@ void* get_handle()
 #error("Not supported");
 #endif
 #else
-        std::string monoRuntimeFolder = "/Users/sergeyyanchi/development/hackweek2017/coreclr/bin/Product/OSX.x64.Debug/libcoreclr.dylib";
+#if defined(__APPLE__)
+    std::string monoRuntimeFolder = "/Users/sergeyyanchi/development/hackweek2017/coreclr/bin/Product/OSX.x64.Debug/libcoreclr.dylib";
+#else
+#error("Specify paths");
+#endif
 #endif
         printf("Loading Mono from '%s'...\n", monoRuntimeFolder.c_str());
         s_MonoLibrary = dlopen(monoRuntimeFolder.c_str(), RTLD_LAZY);
@@ -132,8 +136,12 @@ int main(int argc, char * argv[])
     std::string monoLibFolder = monoRuntimeFolder + k_MonoLib;
     std::string monoEtcFolder = monoRuntimeFolder + k_MonoEtc;
 #else
-    std::string monoLibFolder = "/Users/sergeyyanchi/development/hackweek2017/coreclr/bin/Product/OSX.x64.Debug";
-    std::string monoEtcFolder = monoRuntimeFolder + k_MonoEtc;
+#if defined(__APPLE__)
+    std::string monoLibFolder = "/usr/local/share/dotnet/shared/Microsoft.NETCore.App/2.0.0-preview1-002111-00";
+    std::string monoEtcFolder = "/Users/sergeyyanchi/development/hackweek2017/coreclr/bin/Product/OSX.x64.Debug";
+#else
+#error("Specify paths");
+#endif
 #endif
 
     printf("Setting up directories for Mono...\n");
