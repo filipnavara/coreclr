@@ -1039,8 +1039,27 @@ extern "C" MonoArray* mono_array_new_full(MonoDomain *domain, MonoClass *array_c
 
 extern "C" MonoClass * mono_array_class_get(MonoClass *eclass, guint32 rank)
 {
-    // TODO
-    return NULL;
+    CONTRACTL{
+        STANDARD_VM_CHECK;
+        PRECONDITION(eclass != nullptr);
+        PRECONDITION(rank > 0);
+    } CONTRACTL_END;
+
+    // TODO: We do not make any caching here
+    // Might be a problem compare to mono implem that is caching
+    // (clients might expect that for a same eclass+rank, we get the same array class pointer)
+
+    auto eclass_clr = (MonoClass_clr*)eclass;
+    auto domain_clr = (MonoDomain_clr*)g_RootDomain;
+
+    auto classModule = eclass_clr->GetModule();
+    auto kind = rank == 1 ? ELEMENT_TYPE_SZARRAY : ELEMENT_TYPE_ARRAY;
+
+    // TODO: Is it ok to use a tracker like this?
+    AllocMemTracker amTracker;
+    auto arrayMT = classModule->CreateArrayMethodTable(eclass_clr, kind, rank, &amTracker);
+
+    return (MonoClass*)arrayMT;
 }
 
 extern "C" gint32 mono_class_array_element_size(MonoClass *ac)
