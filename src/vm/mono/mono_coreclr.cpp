@@ -1527,8 +1527,8 @@ extern "C" MonoMethod* mono_class_get_method_from_name(MonoClass *klass, const c
 
 extern "C" MonoClass* mono_class_from_mono_type(MonoType *image)
 {
-    // TODO
-    return NULL;
+    MonoClass_clr* klass = reinterpret_cast<MonoType_clr*>(image)->AsMethodTable();
+    return (MonoClass*)klass;
 }
 
 extern "C" int mono_class_get_rank(MonoClass *klass)
