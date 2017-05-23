@@ -654,8 +654,15 @@ extern "C" void mono_unity_socket_security_enabled_set(gboolean)
 //DO_API(void,mono_set_unhandled_exception_handler,(void* function))
 extern "C" const char* mono_image_get_name(MonoImage *image)
 {
-    // TODO
-    return NULL;
+    CONTRACTL
+    {
+        NOTHROW;
+    GC_NOTRIGGER;
+    PRECONDITION(klass != NULL);
+    }
+    CONTRACTL_END;
+
+    return reinterpret_cast<MonoAssembly_clr*>(image)->GetSimpleName();
 }
 
 extern "C" MonoClass* mono_get_object_class()
