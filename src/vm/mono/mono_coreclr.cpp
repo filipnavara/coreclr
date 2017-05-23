@@ -189,19 +189,7 @@ extern "C" MonoDomain* mono_jit_init_version(const char *file, const char* runti
         };
 
         wchar_t appPath[MAX_PATH] = { 0 };
-#if defined(WIN32)
-        GetModuleFileNameW((HINSTANCE)&__ImageBase, appPath, _countof(appPath));
-        for (size_t i = wcslen(appPath) - 1; i >= 0; i--)
-        {
-            if (appPath[i] == '\\')
-            {
-                appPath[i + 1] = 0;
-                break;
-            }
-        }
-#elif defined(__APPLE__)
         Wsz_mbstowcs(appPath, s_AssemblyDir, MAX_PATH);
-#endif
 
         wchar_t* appNiPath = appPath;
         wchar_t* nativeDllSearchDirs = appPath;
