@@ -149,6 +149,7 @@ publish/
 
 # NuGet Packages
 *.nupkg
+.nuget/
 *.nuget.g.props
 *.nuget.g.targets
 **/packages/*
