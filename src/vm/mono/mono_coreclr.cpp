@@ -1466,8 +1466,7 @@ extern "C" guint32 mono_object_get_size(MonoObject *obj)
 
 extern "C" guint32 mono_class_get_type_token(MonoClass *klass)
 {
-    // TODO
-    return NULL;
+    return (guint32)reinterpret_cast<MonoClass_clr*>(klass)->GetTypeID();
 }
 
 extern "C" const char* mono_image_get_filename(MonoImage *image)
