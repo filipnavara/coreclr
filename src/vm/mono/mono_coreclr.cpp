@@ -15,6 +15,8 @@ ICLRRuntimeHost2* g_CLRRuntimeHost;
 MonoDomain* g_RootDomain;
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 
+char s_AssemblyDir[MAX_PATH] = { 0 };
+
 // Import this function manually as it is not defined in a header
 extern "C" HRESULT  GetCLRRuntimeHost(REFIID riid, IUnknown **ppUnk);
 
@@ -187,6 +189,7 @@ extern "C" MonoDomain* mono_jit_init_version(const char *file, const char* runti
         };
 
         wchar_t appPath[MAX_PATH] = { 0 };
+#if defined(WIN32)
         GetModuleFileNameW((HINSTANCE)&__ImageBase, appPath, _countof(appPath));
         for (size_t i = wcslen(appPath) - 1; i >= 0; i--)
         {
@@ -196,6 +199,9 @@ extern "C" MonoDomain* mono_jit_init_version(const char *file, const char* runti
                 break;
             }
         }
+#elif defined(__APPLE__)
+        Wsz_mbstowcs(appPath, s_AssemblyDir, MAX_PATH);
+#endif
 
         wchar_t* appNiPath = appPath;
         wchar_t* nativeDllSearchDirs = appPath;
@@ -1647,6 +1653,7 @@ extern "C" void mono_config_parse(const char *filename)
 
 extern "C" void mono_set_dirs(const char *assembly_dir, const char *config_dir)
 {
+    strcpy(s_AssemblyDir, assembly_dir);
 }
 
 //DO_API(void,ves_icall_System_AppDomain_InternalUnload,(int domain_id))
@@ -2034,4 +2041,51 @@ extern "C" void mono_gc_push_frame(MonoGCFrame* frame, void* objRef, UINT32 numR
 extern "C" void mono_gc_pop_frame(MonoGCFrame* frame)
 {
     ((FrameWithCookie<GCFrame>*)frame)->Pop();
+}
+
+extern "C" void mono_unity_jit_cleanup(MonoDomain *domain)
+{
+    mono_jit_cleanup(domain);
+}
+
+extern "C" gboolean mono_class_is_blittable(MonoClass * klass)
+{
+    return FALSE;
+}
+
+extern "C" MonoDlFallbackHandler* mono_dl_fallback_register(MonoDlFallbackLoad load_func, MonoDlFallbackSymbol symbol_func, MonoDlFallbackClose close_func, void *user_data)
+{
+    return NULL;
+}
+extern "C" void mono_dl_fallback_unregister(MonoDlFallbackHandler * handler)
+{
+
+}
+extern "C" MonoArray* mono_unity_array_new_2d(MonoDomain * domain, MonoClass * eclass, size_t size0, size_t size1)
+{
+    return NULL;
+}
+extern "C" MonoArray* mono_unity_array_new_3d(MonoDomain * domain, MonoClass * eclass, size_t size0, size_t size1, size_t size2)
+{
+    return NULL;
+}
+extern "C" MonoClass* mono_unity_class_get(MonoImage * image, guint32 type_token)
+{
+    return NULL;
+}
+extern "C" void mono_unity_domain_set_config(MonoDomain * domain, const char *base_dir, const char *config_file_name)
+{
+
+}
+extern "C" MonoException* mono_unity_loader_get_last_error_and_error_prepare_exception()
+{
+    return NULL;
+}
+extern "C" void mono_unity_runtime_set_main_args(int, const char* argv[])
+{
+
+}
+extern "C" MonoString* mono_unity_string_empty_wrapper()
+{
+    return NULL;
 }

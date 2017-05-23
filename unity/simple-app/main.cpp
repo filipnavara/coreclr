@@ -9,6 +9,8 @@
 #include <dlfcn.h>
 #endif
 
+//#define USE_CORECLR
+
 typedef signed short SInt16;
 
 typedef unsigned short UInt16;
@@ -51,6 +53,15 @@ void* get_handle()
 {
     if(s_MonoLibrary == nullptr)
     {
+#if !defined(USE_CORECLR)
+        const char* unityRoot = getenv("UNITY_ROOT");
+
+        if(unityRoot == nullptr)
+        {
+            printf("UNITY_ROOT is not defined!\n");
+            exit(1);
+        }
+
         std::string monoRuntimeFolder = getenv("UNITY_ROOT");
 #if defined(__APPLE__)
         monoRuntimeFolder += "/External/MonoBleedingEdge/builds/embedruntimes/osx/libmonosgen-2.0.dylib";
@@ -61,7 +72,9 @@ void* get_handle()
 #else
 #error("Not supported");
 #endif
-
+#else
+        std::string monoRuntimeFolder = "/Users/sergeyyanchi/development/hackweek2017/coreclr/bin/Product/OSX.x64.Debug/libcoreclr.dylib";
+#endif
         printf("Loading Mono from '%s'...\n", monoRuntimeFolder.c_str());
         s_MonoLibrary = dlopen(monoRuntimeFolder.c_str(), RTLD_LAZY);
 
@@ -76,7 +89,19 @@ void* get_handle()
 
 typedef wchar_t mono_char; // used by CoreCLR
 
-#define DO_API(r,n,p) typedef r (*type_##n)p; type_##n n = (type_##n)dlsym(get_handle(), #n);
+void* get_method(const char* functionName)
+{
+    void* func = dlsym(get_handle(), functionName);
+    if(func == nullptr)
+    {
+        printf("Failed to load function '%s'\n", functionName);
+        exit(1);
+        return nullptr;
+    }
+    return func;
+}
+
+#define DO_API(r,n,p) typedef r (*type_##n)p; type_##n n = (type_##n)get_method(#n);
 
 #include <MonoTypes.h>
 #include <MonoFunctions.h>
