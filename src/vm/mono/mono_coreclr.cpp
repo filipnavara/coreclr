@@ -28,6 +28,8 @@ char s_EtcDir[MAX_PATH] = { 0 };
 // Import this function manually as it is not defined in a header
 extern "C" HRESULT  GetCLRRuntimeHost(REFIID riid, IUnknown **ppUnk);
 
+#define ASSERT_NOT_IMPLEMENTED
+
 struct MonoCustomAttrInfo_clr
 {
     OBJECTREF typeInfo;
@@ -122,55 +124,64 @@ static_assert(sizeof(FrameWithCookie<GCFrame>) == sizeof(MonoGCCookie), "MonoGCC
 
 extern "C" void mono_thread_suspend_all_other_threads()
 {
+    ASSERT_NOT_IMPLEMENTED;
     //TODO used once in Runtime\Mono\MonoManager.cpp CleanupMono()
 }
 
 extern "C" void mono_thread_pool_cleanup()
 {
+    ASSERT_NOT_IMPLEMENTED;
     //TODO used once in Runtime\Mono\MonoManager.cpp CleanupMono()
 }
 
 extern "C" void mono_threads_set_shutting_down()
 {
+    ASSERT_NOT_IMPLEMENTED;
     //TODO used once in Runtime\Mono\MonoManager.cpp CleanupMono()
 }
 
 extern "C" void mono_runtime_set_shutting_down()
 {
+    ASSERT_NOT_IMPLEMENTED;
     //TODO used once in Runtime\Mono\MonoManager.cpp CleanupMono()
 }
 
 extern "C" gboolean mono_runtime_is_shutting_down()
 {
+    ASSERT_NOT_IMPLEMENTED;
     //TODO not used
     return FALSE;
 }
 
 extern "C" gboolean mono_domain_finalize(MonoDomain *domain, int timeout)
 {
+    ASSERT_NOT_IMPLEMENTED;
     //TODO not used
     return TRUE;
 }
 
 extern "C" void mono_runtime_cleanup(MonoDomain *domain)
 {
+    ASSERT_NOT_IMPLEMENTED;
     //TODO not used
 }
 
 extern "C" MonoMethod* mono_object_get_virtual_method(MonoObject *obj, MonoMethod *method)
 {
-    //TODO used 2 times
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" void mono_verifier_set_mode(MiniVerifierMode)
 {
+    ASSERT_NOT_IMPLEMENTED;
     //TODO used in Runtime\Mono\MonoManager.cpp SetSecurityMode()
     // NOP for now
 }
 
 extern "C" void mono_security_set_mode(MonoSecurityMode)
 {
+    ASSERT_NOT_IMPLEMENTED;
     //TODO used in Runtime\Mono\MonoManager.cpp SetSecurityMode()
     // NOP for now
 }
@@ -351,12 +362,13 @@ extern "C" MonoDomain* mono_jit_init_version(const char *file, const char* runti
 
 extern "C" int mono_jit_exec(MonoDomain *domain, MonoAssembly *assembly, int argc, char *argv[])
 {
-    // TODO NOT USED
+    ASSERT_NOT_IMPLEMENTED;
     return 0;
 }
 
 extern "C" void* mono_jit_info_get_code_start(void* jit)
 {
+    ASSERT_NOT_IMPLEMENTED;
     // TODO used 1 by instrumentation unity/mono profiler
     // Runtime\Profiler\Instrumentation\InstrumentationProfiler.cpp(292)
     return NULL;
@@ -364,6 +376,7 @@ extern "C" void* mono_jit_info_get_code_start(void* jit)
 
 extern "C" int mono_jit_info_get_code_size(void* jit)
 {
+    ASSERT_NOT_IMPLEMENTED;
     // TODO used 1 by instrumentation unity/mono profiler
     // Runtime\Profiler\Instrumentation\InstrumentationProfiler.cpp(292)
     return 0;
@@ -442,6 +455,7 @@ extern "C" MonoAssembly * mono_domain_assembly_open(MonoDomain *domain, const ch
 
 extern "C" MonoDomain * mono_domain_create_appdomain(const char *domainname, const char* configfile)
 {
+    ASSERT_NOT_IMPLEMENTED;
     // TODO used mostly in Runtime\Mono\MonoManager.cpp   MonoManager::CreateAndSetChildDomain()
     // to load script assemblies
     return NULL;
@@ -449,6 +463,7 @@ extern "C" MonoDomain * mono_domain_create_appdomain(const char *domainname, con
 
 extern "C" void mono_domain_unload(MonoDomain* domain)
 {
+    ASSERT_NOT_IMPLEMENTED;
     // TODO used mainly in Runtime\Mono\MonoManager.cpp UnloadDomain() to unload from the current domain
 }
 
@@ -759,14 +774,17 @@ extern "C" gint32 mono_domain_get_id(MonoDomain *domain)
 
 extern "C" void mono_assembly_foreach(GFunc func, gpointer user_data)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 extern "C" void mono_image_close(MonoImage *image)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 extern "C" void mono_unity_socket_security_enabled_set(gboolean)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 //DO_API(void,mono_set_unhandled_exception_handler,(void* function))
@@ -789,19 +807,23 @@ extern "C" MonoClass* mono_get_object_class()
     return NULL;
 }
 
-#if UNITY_WIN || UNITY_OSX || UNITY_ANDROID || UNITY_TIZEN || UNITY_STV || UNITY_LINUX
+#if PLATFORM_WIN || PLATFORM_OSX || PLATFORM_ANDROID || PLATFORM_TIZEN || PLATFORM_STV || PLATFORM_LINUX
 extern "C" void mono_set_signal_chaining(gboolean)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 #endif
-#if UNITY_WIN
+#if PLATFORM_WIN
 extern "C" long mono_unity_seh_handler(EXCEPTION_POINTERS*)
 {
+    ASSERT_NOT_IMPLEMENTED;
+    return 0;
 }
 
 extern "C" void mono_unity_set_unhandled_exception_handler(void*)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 #endif
@@ -810,6 +832,7 @@ extern "C" void mono_unity_set_unhandled_exception_handler(void*)
 // Not defined in current mono-consoles,  Nov 25 2013
 extern "C" void mono_set_commandline_arguments(int, const char* argv[], const char*)
 {
+    ASSERT_NOT_IMPLEMENTED;
     // TODO (used)
 }
 
@@ -818,6 +841,7 @@ extern "C" void mono_set_commandline_arguments(int, const char* argv[], const ch
 #if USE_MONO_AOT
 extern "C" void* mono_aot_get_method(MonoDomain *domain, MonoMethod *method)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 #endif
@@ -826,13 +850,13 @@ extern "C" void* mono_aot_get_method(MonoDomain *domain, MonoMethod *method)
 // Type-safe way of looking up methods based on method signatures
 extern "C" MonoObject* mono_runtime_invoke_array(MonoMethod *method, void *obj, MonoArray *params, MonoException **exc)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" char* mono_array_addr_with_size(MonoArray *array, int size, uintptr_t idx)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
@@ -841,56 +865,59 @@ extern "C" char* mono_array_addr_with_size(MonoArray *array, int size, uintptr_t
 #if UNITY_EDITOR
 extern "C" MonoMethodDesc* mono_method_desc_new(const char *name, gboolean include_namespace)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoMethod* mono_method_desc_search_in_class(MonoMethodDesc* desc, MonoClass* klass)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" void mono_method_desc_free(MonoMethodDesc* desc)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 extern "C" char* mono_type_get_name_full(MonoType *type, MonoTypeNameFormat format)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 #endif
 
-#if UNITY_WIN || UNITY_XBOXONE
+#if PLATFORM_WIN || PLATFORM_XBOXONE
 extern "C" gunichar2* mono_string_to_utf16(MonoString *string_obj)
 {
+    ASSERT_NOT_IMPLEMENTED;
+    return NULL;
 }
 
 #endif
 
 extern "C" const char* mono_field_get_name(MonoClassField *field)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoClass* mono_field_get_parent(MonoClassField *field)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoType* mono_field_get_type(MonoClassField *field)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" int mono_type_get_type(MonoType *type)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
@@ -901,7 +928,7 @@ extern "C" const char* mono_method_get_name(MonoMethod *method)
 
 extern "C" char* mono_method_full_name(MonoMethod* method, gboolean signature)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
@@ -921,7 +948,7 @@ extern "C" MonoImage* mono_assembly_get_image(MonoAssembly *assembly)
 
 extern "C" MonoClass* mono_method_get_class(MonoMethod *method)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
@@ -947,31 +974,31 @@ extern "C" gboolean mono_class_is_valuetype(MonoClass *klass)
 
 extern "C" guint32 mono_signature_get_param_count(MonoMethodSignature *sig)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" char* mono_string_to_utf8(MonoString *string_obj)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoString* mono_string_new_wrapper(const char* text)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoString* mono_string_new_len(MonoDomain *domain, const char *text, guint32 length)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoString* mono_string_from_utf16(const gunichar2* text)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
@@ -1019,31 +1046,31 @@ extern "C" const char* mono_class_get_name(MonoClass *klass)
 
 extern "C" char* mono_type_get_name(MonoType *type)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoClass* mono_type_get_class(MonoType *type)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoException * mono_exception_from_name_msg(MonoImage *image, const char *name_space, const char *name, const char *msg)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoException * mono_exception_from_name_two_strings(MonoImage *image, const char *name_space, const char *name, const char *msg1, const char *msg2)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoException * mono_get_exception_argument_null(const char *arg)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
@@ -1053,67 +1080,67 @@ extern "C" void mono_raise_exception(MonoException *ex)
 
 extern "C" MonoClass* mono_get_exception_class()
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoClass* mono_get_array_class()
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoClass* mono_get_string_class()
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoClass* mono_get_boolean_class()
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoClass* mono_get_byte_class()
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoClass* mono_get_char_class()
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoClass* mono_get_int16_class()
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoClass* mono_get_int32_class()
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoClass* mono_get_int64_class()
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoClass* mono_get_single_class()
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoClass* mono_get_double_class()
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
@@ -1134,7 +1161,7 @@ extern "C" MonoArray* mono_array_new(MonoDomain *domain, MonoClass *eclass, guin
 
 extern "C" MonoArray* mono_array_new_full(MonoDomain *domain, MonoClass *array_class, guint32 *lengths, guint32 *lower_bounds)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
@@ -1165,38 +1192,38 @@ extern "C" MonoClass * mono_array_class_get(MonoClass *eclass, guint32 rank)
 
 extern "C" gint32 mono_class_array_element_size(MonoClass *ac)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoObject* mono_type_get_object(MonoDomain *domain, MonoType *type)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" gboolean mono_class_is_generic(MonoClass* klass)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return FALSE;
 }
 
 extern "C" gboolean mono_class_is_inflated(MonoClass* klass)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return FALSE;
 }
 
 #if !USE_CONSOLEBRANCH_MONO
 extern "C" gboolean unity_mono_method_is_generic(MonoMethod* method)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return FALSE;
 }
 
 extern "C" gboolean unity_mono_method_is_inflated(MonoMethod* method)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return FALSE;
 }
 
@@ -1204,17 +1231,18 @@ extern "C" gboolean unity_mono_method_is_inflated(MonoMethod* method)
 
 extern "C" MonoThread * mono_thread_attach(MonoDomain *domain)
 {
-    // TODO (used)
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" void mono_thread_detach(MonoThread *thread)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 extern "C" MonoThread * mono_thread_exit()
 {
-    // TODO (?)
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
@@ -1225,31 +1253,36 @@ extern "C" MonoThread * mono_thread_current(void)
 
 extern "C" void mono_thread_set_main(MonoThread* thread)
 {
-    // TODO used
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 extern "C" void mono_set_find_plugin_callback(gconstpointer method)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 extern "C" void mono_security_enable_core_clr()
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 typedef gboolean(*MonoCoreClrPlatformCB) (const char *image_name);
 extern "C" void mono_security_set_core_clr_platform_callback(MonoCoreClrPlatformCB)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 #if MONO_2_12
 extern "C" void mono_security_core_clr_set_options(MonoSecurityCoreCLROptions)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 #endif
 
 extern "C" void mono_runtime_unhandled_exception_policy_set(MonoRuntimeUnhandledExceptionPolicy policy)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 #if UNITY_OSX
@@ -1271,13 +1304,13 @@ extern "C" MonoClass* mono_class_get_nesting_type(MonoClass *klass)
 
 extern "C" MonoVTable* mono_class_vtable(MonoDomain *domain, MonoClass *klass)
 {
-    // TODO (?)
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoReflectionMethod* mono_method_get_object(MonoDomain *domain, MonoMethod *method, MonoClass *refclass)
 {
-    // TODO (?)
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
@@ -1289,13 +1322,13 @@ extern "C" MonoMethodSignature* mono_method_signature(MonoMethod *method)
 
 extern "C" MonoType* mono_signature_get_params(MonoMethodSignature *sig, gpointer *iter)
 {
-    // TODO (?)
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoType* mono_signature_get_return_type(MonoMethodSignature *sig)
 {
-    // TODO (?)
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
@@ -1309,17 +1342,19 @@ extern "C" MonoType* mono_class_get_type(MonoClass *klass)
 // Not defined in current mono-consoles,  Nov 25 2013
 extern "C" void mono_set_ignore_version_and_key_when_finding_assemblies_already_loaded(gboolean value)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 #endif
 extern "C" void mono_debug_init(int format)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 #if !USE_CONSOLEBRANCH_MONO
 extern "C" gboolean mono_is_debugger_attached(void)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return FALSE;
 }
 
@@ -1327,58 +1362,60 @@ extern "C" gboolean mono_is_debugger_attached(void)
 
 extern "C" void mono_debug_open_image_from_memory(MonoImage *image, const char *raw_contents, int size)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 extern "C" guint32 mono_field_get_flags(MonoClassField *field)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoImage* mono_image_open_from_data_full(const void *data, guint32 data_len, gboolean need_copy, int *status, gboolean ref_only)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoImage* mono_image_open_from_data_with_name(char *data, guint32 data_len, gboolean need_copy, int *status, gboolean refonly, const char *name)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoAssembly * mono_assembly_load_from(MonoImage *image, const char*fname, int *status)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" gboolean mono_assembly_fill_assembly_name(MonoImage *image, MonoAssemblyName *aname)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return FALSE;
 }
 
 extern "C" char* mono_stringify_assembly_name(MonoAssemblyName *aname)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" int mono_assembly_name_parse(const char* name, MonoAssemblyName *assembly)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return 0;
 }
 
 extern "C" MonoAssembly* mono_assembly_loaded(MonoAssemblyName *aname)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" int mono_image_get_table_rows(MonoImage *image, int table_id)
 {
+    ASSERT_NOT_IMPLEMENTED;
     return 0;
 }
 
@@ -1391,118 +1428,123 @@ extern "C" MonoClass* mono_class_get(MonoImage *image, guint32 type_token)
 
 extern "C" gboolean mono_metadata_signature_equal(MonoMethodSignature *sig1, MonoMethodSignature *sig2)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return FALSE;
 }
 
 extern "C" MonoObject * mono_value_box(MonoDomain *domain, MonoClass *klass, gpointer val)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoImage* mono_class_get_image(MonoClass *klass)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" char mono_signature_is_instance(MonoMethodSignature *signature)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return 0;
 }
 
 extern "C" MonoMethod* mono_method_get_last_managed()
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoClass* mono_get_enum_class()
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoType* mono_class_get_byref_type(MonoClass *klass)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" void mono_field_static_get_value(MonoVTable *vt, MonoClassField *field, void *value)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 extern "C" void mono_unity_set_embeddinghostname(const char* name)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 extern "C" void mono_set_assemblies_path(const char* name)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 extern "C" guint32 mono_gchandle_new(MonoObject *obj, gboolean pinned)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoObject* mono_gchandle_get_target(guint32 gchandle)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" guint32 mono_gchandle_new_weakref(MonoObject *obj, gboolean track_resurrection)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" gboolean mono_gchandle_is_in_domain(guint32 gchandle, MonoDomain *domain)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return FALSE;
 }
 
 extern "C" MonoObject* mono_assembly_get_object(MonoDomain *domain, MonoAssembly *assembly)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" void mono_gchandle_free(guint32 gchandle)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 typedef gboolean(*MonoStackWalk) (MonoMethod *method, gint32 native_offset, gint32 il_offset, gboolean managed, gpointer data);
 extern "C" void mono_stack_walk(MonoStackWalk func, gpointer user_data)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 extern "C" char* mono_pmip(void *ip)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoObject* mono_runtime_delegate_invoke(MonoObject *delegate, void **params, MonoException **exc)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoJitInfo* mono_jit_info_table_find(MonoDomain* domain, void* ip)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoDebugSourceLocation* mono_debug_lookup_source_location(MonoMethod* method, guint32 address, MonoDomain* domain)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
@@ -1514,25 +1556,25 @@ extern "C" void mono_debug_free_source_location(MonoDebugSourceLocation* locatio
 //DO_API(void*,GC_malloc_uncollectable,(int size))
 extern "C" MonoProperty* mono_class_get_properties(MonoClass* klass, gpointer *iter)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoMethod* mono_property_get_get_method(MonoProperty *prop)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoObject * mono_object_new_alloc_specific(MonoVTable *vtable)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoObject * mono_object_new_specific(MonoVTable *vtable)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
@@ -1542,19 +1584,19 @@ extern "C" void mono_gc_collect(int generation)
 
 extern "C" int mono_gc_max_generation()
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" gint64 mono_gc_get_used_size()
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" gint64 mono_gc_get_heap_size()
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
@@ -1564,13 +1606,13 @@ extern "C" void mono_gc_wbarrier_generic_store(gpointer ptr, MonoObject* value)
 
 extern "C" MonoAssembly* mono_image_get_assembly(MonoImage *image)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoAssembly* mono_assembly_open(const char *filename, int *status)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
@@ -1581,13 +1623,13 @@ extern "C" gboolean mono_class_is_enum(MonoClass *klass)
 
 extern "C" MonoType* mono_class_enum_basetype(MonoClass *klass)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" gint32 mono_class_instance_size(MonoClass *klass)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
@@ -1603,29 +1645,30 @@ extern "C" guint32 mono_class_get_type_token(MonoClass *klass)
 
 extern "C" const char* mono_image_get_filename(MonoImage *image)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoAssembly* mono_assembly_load_from_full(MonoImage *image, const char *fname, int *status, gboolean refonly)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoClass* mono_class_get_interfaces(MonoClass* klass, gpointer *iter)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" void mono_assembly_close(MonoAssembly *assembly)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 extern "C" MonoProperty* mono_class_get_property_from_name(MonoClass *klass, const char *name)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
@@ -1736,27 +1779,29 @@ extern "C" int mono_array_element_size(MonoClass* classOfArray)
 
 extern "C" gboolean mono_domain_set(MonoDomain *domain, gboolean force)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" void mono_thread_push_appdomain_ref(MonoDomain *domain)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 extern "C" void mono_thread_pop_appdomain_ref()
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 extern "C" int mono_runtime_exec_main(MonoMethod *method, MonoArray *args, MonoObject **exc)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoImage* mono_get_corlib()
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
@@ -1788,24 +1833,24 @@ extern "C" MonoClassField* mono_class_get_field_from_name(MonoClass *klass, cons
 
 extern "C" guint32 mono_class_get_flags(MonoClass *klass)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" int mono_parse_default_optimizations(const char* p)
 {
-    // TODO (used)
+    ASSERT_NOT_IMPLEMENTED;
     return 0;
 }
 
 extern "C" void mono_set_defaults(int verbose_level, guint32 opts)
 {
-    // TODO (used)
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 extern "C" void mono_config_parse(const char *filename)
 {
-    // TODO (used)
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 extern "C" void mono_set_dirs(const char *assembly_dir, const char *config_dir)
@@ -1821,11 +1866,13 @@ extern "C" void mono_set_dirs(const char *assembly_dir, const char *config_dir)
 // Not defined in current mono-consoles,  June 2 2015
 extern "C" void mono_set_break_policy(MonoBreakPolicyFunc policy_callback)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 #endif
 
 extern "C" void mono_jit_parse_options(int argc, char * argv[])
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 extern "C" gpointer mono_object_unbox(MonoObject* o)
@@ -1843,12 +1890,13 @@ extern "C" gpointer mono_object_unbox(MonoObject* o)
 
 extern "C" MonoObject* mono_custom_attrs_get_attr(MonoCustomAttrInfo *ainfo, MonoClass *attr_klass)
 {
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoArray* mono_custom_attrs_construct(MonoCustomAttrInfo *cinfo)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
@@ -1868,7 +1916,7 @@ extern "C" gboolean mono_custom_attrs_has_attr(MonoCustomAttrInfo *ainfo, MonoCl
 
 extern "C" MonoCustomAttrInfo* mono_custom_attrs_from_field(MonoClass *klass, MonoClassField *field)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
@@ -1888,13 +1936,13 @@ extern "C" MonoCustomAttrInfo* mono_custom_attrs_from_class(MonoClass *klass)
 
 extern "C" MonoCustomAttrInfo* mono_custom_attrs_from_assembly(MonoAssembly *assembly)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoArray* mono_reflection_get_custom_attrs_by_type(MonoObject* object, MonoClass* klass)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
@@ -1905,13 +1953,13 @@ extern "C" void mono_custom_attrs_free(MonoCustomAttrInfo* attr)
 
 extern "C" void* mono_loader_get_last_error(void)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" MonoException* mono_loader_error_prepare_exception(void *error)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
@@ -1925,12 +1973,13 @@ typedef void* (*MonoDlFallbackClose) (void *handle, void *user_data);
 // Not defined in current mono-consoles,  Nov 25 2013
 extern "C" MonoDlFallbackHandler* mono_dl_fallback_register(MonoDlFallbackLoad load_func, MonoDlFallbackSymbol symbol_func, MonoDlFallbackClose close_func, void *user_data)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" void mono_dl_fallback_unregister(MonoDlFallbackHandler *handler)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 #	endif
@@ -1940,60 +1989,68 @@ extern "C" void mono_dl_fallback_unregister(MonoDlFallbackHandler *handler)
 typedef void(*vprintf_func)(const char* msg, va_list args);
 extern "C" void mono_unity_set_vprintf_func(vprintf_func func)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 extern "C" void* mono_unity_liveness_allocate_struct(MonoClass* filter, int max_object_count, mono_register_object_callback callback, void* userdata)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
 extern "C" void mono_unity_liveness_stop_gc_world()
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 extern "C" void mono_unity_liveness_finalize(void* state)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 extern "C" void mono_unity_liveness_start_gc_world()
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 extern "C" void mono_unity_liveness_free_struct(void* state)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 #if USE_CONSOLEBRANCH_MONO
 extern "C" void* mono_unity_liveness_calculation_begin(MonoClass * filter, int max_object_count, mono_register_object_callback callback, void* userdata)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 #else
 extern "C" void* mono_unity_liveness_calculation_begin(MonoClass * filter, int max_object_count, mono_register_object_callback callback, void* userdata, mono_liveness_world_state_callback world_started_callback, mono_liveness_world_state_callback world_stopped_callback)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 #endif
 
 extern "C" void mono_unity_liveness_calculation_end(void* state)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 extern "C" void mono_unity_liveness_calculation_from_root(MonoObject* root, void* state)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 extern "C" void mono_unity_liveness_calculation_from_statics(void* state)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 #if !USE_CONSOLEBRANCH_MONO
 extern "C" MonoMethod* unity_mono_reflection_method_get_method(MonoReflectionMethod* mrf)
 {
-    // TODO
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 #endif
@@ -2017,30 +2074,37 @@ typedef void(*MonoProfileThreadFunc)     (void *prof, unsigned long tid);
 
 extern "C" void mono_profiler_install(void *prof, MonoProfileFunc shutdown_callback)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 extern "C" void mono_profiler_set_events(int events)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 extern "C" void mono_profiler_install_enter_leave(MonoProfileMethodFunc enter, MonoProfileMethodFunc fleave)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 extern "C" void mono_profiler_install_gc(MonoProfileGCFunc callback, MonoProfileGCResizeFunc heap_resize_callback)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 extern "C" void mono_profiler_install_allocation(MonoProfileAllocFunc callback)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 extern "C" void mono_profiler_install_jit_end(MonoProfileJitResult jit_end)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 extern "C" void mono_profiler_install_thread(MonoProfileThreadFunc start, MonoProfileThreadFunc end)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 //DO_API(void, mono_gc_base_init, ())
@@ -2048,6 +2112,7 @@ extern "C" void mono_profiler_install_thread(MonoProfileThreadFunc start, MonoPr
 //DO_API(void, mono_profiler_install_statistical_call_chain, (MonoProfileStatCallChainFunc callback, int call_chain_depth))
 extern "C" void mono_profiler_install_exception(MonoProfileExceptionFunc throw_callback, MonoProfileMethodFunc exc_method_leave, MonoProfileExceptionClauseFunc clause_callback)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 #endif
@@ -2055,6 +2120,7 @@ extern "C" void mono_profiler_install_exception(MonoProfileExceptionFunc throw_c
 #if UNITY_IPHONE || UNITY_TVOS
 extern "C" void mono_aot_register_module(void *aot_info)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 #endif
 
@@ -2069,10 +2135,12 @@ extern "C" void mono_aot_register_module(void *aot_info)
 #define g_free mono_unity_g_free
 extern "C" void mono_unity_g_free(void* p)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 #else
 extern "C" void g_free(void* p)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 #endif
 /*
@@ -2094,23 +2162,25 @@ extern "C" void g_mem_set_vtable(gpointer vtable)
 
 extern "C" void mono_trace_set_level_string(const char *value)
 {
-    // TODO (used)
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 extern "C" void mono_trace_set_mask_string(const char *value)
 {
-    // TODO (used)
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 #if UNITY_XBOXONE
 extern "C" void mono_trace_set_level(GLogLevelFlags level)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 #endif
 
 #if UNITY_WIIU
 extern "C" char* g_strdup_d(char const* str)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 // specific allocations
@@ -2120,14 +2190,17 @@ extern "C" char* g_strdup_d(char const* str)
 
 extern "C" void* g_memdup(void const* mem, unsigned int byte_size)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 extern "C" char* g_strdup(const char *str)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 extern "C" gboolean mono_jit_set_trace_options(const char* options)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 #endif
 
@@ -2135,18 +2208,22 @@ extern "C" gboolean mono_jit_set_trace_options(const char* options)
 // memory and string functions
 extern "C" void* console_g_malloc(size_t size)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 extern "C" void* console_g_calloc(size_t size, size_t elemSize)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 extern "C" void* console_g_realloc(void *memblock, size_t size)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 extern "C" void console_g_free(void* p)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 #define g_free console_g_free
 #endif
@@ -2154,6 +2231,7 @@ extern "C" void console_g_free(void* p)
 #if UNITY_XBOXONE
 extern "C" void mono_trace_enable(gboolean enable)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 #endif
 
@@ -2163,49 +2241,58 @@ extern "C" void mono_trace_enable(gboolean enable)
 // Not defined in current mono-consoles,  Nov 25 2013
 extern "C" void mono_set_corlib_data(void *data, size_t size)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 #endif
 
 extern "C" void mono_runtime_set_no_exec(gboolean val)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 extern "C" void mono_jit_set_aot_only(gboolean val)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 typedef MonoAssembly *(*MonoAssemblySearchFunc)         (char **aname, void* user_data);
 
 extern "C" void mono_install_assembly_postload_search_hook(MonoAssemblySearchFunc func, gpointer user_data)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 #endif
 
 #if UNITY_WIIU || UNITY_XBOXONE
 extern "C" void mono_runtime_set_main_args(const char** args, int num_args)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 #endif
 
 #if UNITY_OSX
 extern "C" int mono_backtrace_from_context(void* context, void* array[], int count)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 #endif
 
 #if ENABLE_MONO_MEMORY_CALLBACKS
 extern "C" void unity_mono_install_memory_callbacks(MonoMemoryCallbacks* callbacks)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 #endif
 
 #if UNITY_PS4
 extern "C" void unity_mono_set_thread_affinity(int aff)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 
 extern "C" void unity_mono_set_thread_policy(int type, int policy)
 {
+    ASSERT_NOT_IMPLEMENTED;
 }
 #endif
 
@@ -2226,42 +2313,62 @@ extern "C" void mono_unity_jit_cleanup(MonoDomain *domain)
 
 extern "C" gboolean mono_class_is_blittable(MonoClass * klass)
 {
+    ASSERT_NOT_IMPLEMENTED;
     return FALSE;
 }
 
+#if PLATFORM_STANDALONE || UNITY_EDITOR
+#if !PLATFORM_XBOXONE
 extern "C" MonoDlFallbackHandler* mono_dl_fallback_register(MonoDlFallbackLoad load_func, MonoDlFallbackSymbol symbol_func, MonoDlFallbackClose close_func, void *user_data)
 {
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 extern "C" void mono_dl_fallback_unregister(MonoDlFallbackHandler * handler)
 {
-
+    ASSERT_NOT_IMPLEMENTED;
 }
+#endif
+#endif 
+
 extern "C" MonoArray* mono_unity_array_new_2d(MonoDomain * domain, MonoClass * eclass, size_t size0, size_t size1)
 {
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 extern "C" MonoArray* mono_unity_array_new_3d(MonoDomain * domain, MonoClass * eclass, size_t size0, size_t size1, size_t size2)
 {
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 extern "C" MonoClass* mono_unity_class_get(MonoImage * image, guint32 type_token)
 {
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 extern "C" void mono_unity_domain_set_config(MonoDomain * domain, const char *base_dir, const char *config_file_name)
 {
-
+    ASSERT_NOT_IMPLEMENTED;
 }
 extern "C" MonoException* mono_unity_loader_get_last_error_and_error_prepare_exception()
 {
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 extern "C" void mono_unity_runtime_set_main_args(int, const char* argv[])
 {
-
+    ASSERT_NOT_IMPLEMENTED;
 }
 extern "C" MonoString* mono_unity_string_empty_wrapper()
 {
+    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
+
+#if PLATFORM_OSX
+extern "C" int mono_unity_backtrace_from_context(void* context, void* array[], int count)
+{
+    ASSERT_NOT_IMPLEMENTED;
+    return 0;
+}
+#endif

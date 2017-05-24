@@ -14,12 +14,18 @@ endif()
 
 message("Using Unity: ${UNITY_ROOT}")
 
-add_definitions(-DENABLE_MONO)
-add_definitions(-DPLATFORM_STANDALONE)
-include_directories(${UNITY_ROOT}/Runtime/Mono)
+add_definitions(-DENABLE_MONO=1)
+add_definitions(-DPLATFORM_STANDALONE=1)
 
-# add_definitions(-DUNITY_EDITOR)
-# add_definitions(-DMONO_2_12)
+if(WIN32)
+  add_definitions(-DPLATFORM_WIN=1)
+endif()
+
+if(CLR_CMAKE_PLATFORM_DARWIN)
+  add_definitions(-DPLATFORM_OSX=1)
+endif()
+
+include_directories(${UNITY_ROOT}/Runtime/Mono)
 
 add_library_clr(mono ${VM_SOURCES_MONO})
 target_compile_features(mono PRIVATE cxx_range_for)

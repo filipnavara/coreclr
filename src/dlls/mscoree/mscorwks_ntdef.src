@@ -17,7 +17,7 @@ EXPORTS
         g_CLREngineMetrics                                  @2 data
 
         ; mono
-        mono_test_export
+        mono_thread_suspend_all_other_threads
         mono_thread_pool_cleanup
         mono_threads_set_shutting_down
         mono_runtime_set_shutting_down
@@ -28,14 +28,20 @@ EXPORTS
         mono_verifier_set_mode
         mono_security_set_mode
         mono_add_internal_call
+        mono_unity_jit_cleanup
+        mono_jit_init
+        mono_jit_init_version
         mono_jit_exec
         mono_jit_info_get_code_start
         mono_jit_info_get_code_size
+        mono_class_from_name
         mono_class_from_name_case
+        mono_domain_assembly_open
         mono_domain_create_appdomain
         mono_domain_unload
         mono_object_new
         mono_runtime_object_init
+        mono_runtime_invoke
         mono_field_set_value
         mono_field_get_value
         mono_field_get_offset
@@ -53,15 +59,20 @@ EXPORTS
         mono_unity_socket_security_enabled_set
         mono_image_get_name
         mono_get_object_class
+        mono_set_signal_chaining
+        mono_unity_seh_handler
+        mono_unity_set_unhandled_exception_handler
         mono_unity_runtime_set_main_args
         mono_runtime_invoke_array
         mono_array_addr_with_size
+        mono_string_to_utf16
         mono_field_get_name
         mono_field_get_parent
         mono_field_get_type
         mono_type_get_type
         mono_method_get_name
         mono_method_full_name
+        mono_assembly_get_image
         mono_method_get_class
         mono_object_get_class
         mono_object_isinst
@@ -176,6 +187,7 @@ EXPORTS
         mono_class_get_interfaces
         mono_assembly_close
         mono_class_get_property_from_name
+        mono_class_get_method_from_name
         mono_class_from_mono_type
         mono_class_get_rank
         mono_class_get_element_class
@@ -193,8 +205,10 @@ EXPORTS
         mono_parse_default_optimizations
         mono_set_defaults
         mono_config_parse
+        mono_set_dirs
         mono_set_break_policy
         mono_jit_parse_options
+        mono_object_unbox
         mono_custom_attrs_get_attr
         mono_custom_attrs_construct
         mono_custom_attrs_has_attr
@@ -217,20 +231,17 @@ EXPORTS
         mono_unity_liveness_calculation_from_root
         mono_unity_liveness_calculation_from_statics
         unity_mono_reflection_method_get_method
+        mono_profiler_install
+        mono_profiler_set_events
+        mono_profiler_install_enter_leave
+        mono_profiler_install_gc
+        mono_profiler_install_allocation
+        mono_profiler_install_jit_end
+        mono_profiler_install_thread
+        mono_profiler_install_exception
         mono_unity_g_free
         mono_trace_set_level_string
         mono_trace_set_mask_string
-        mono_thread_suspend_all_other_threads
-        mono_unity_jit_cleanup
-        mono_jit_init
-        mono_set_dirs
-        mono_jit_init_version
-        mono_domain_assembly_open
-        mono_assembly_get_image
-        mono_class_from_name
-        mono_class_get_method_from_name
-        mono_runtime_invoke
-        mono_object_unbox
         
         ; Unix hosting API
         coreclr_create_delegate
