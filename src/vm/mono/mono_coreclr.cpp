@@ -1204,8 +1204,11 @@ extern "C" MonoObject* mono_type_get_object(MonoDomain *domain, MonoType *type)
 
 extern "C" gboolean mono_class_is_generic(MonoClass* klass)
 {
-    ASSERT_NOT_IMPLEMENTED;
-    return FALSE;
+    CONTRACTL{
+        PRECONDITION(klass != nullptr);
+    } CONTRACTL_END;
+    MonoClass_clr* klass_clr = (MonoClass_clr*)klass;
+    return klass_clr->IsGenericTypeDefinition();
 }
 
 extern "C" gboolean mono_class_is_inflated(MonoClass* klass)
