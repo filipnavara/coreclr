@@ -243,7 +243,7 @@ extern "C" MonoDomain* mono_jit_init_version(const char *file, const char* runti
     {
 #if defined(__APPLE__)
         uint32_t lenActualPath = 0;
-        const char* entrypointExecutable = "/Users/sergeyyanchi/development/hackweek2017/coreclr/unity/simple-app/build/mono_test_app";
+        const char* entrypointExecutable = "/dev/null";
         /*if (_NSGetExecutablePath(nullptr, &lenActualPath) == -1)
         {
             // OSX has placed the actual path length in lenActualPath,
