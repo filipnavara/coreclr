@@ -220,6 +220,7 @@ int main(int argc, char * argv[])
     // Create Object
     GET_AND_ASSERT(testobj, mono_object_new(domain, klass));
 
+    // Test static method passing an object
     {
         GET_AND_ASSERT(method, mono_class_get_method_from_name(klass, "StaticTestArg1_obj", 1));
         void* params[1] = { testobj };
@@ -228,6 +229,23 @@ int main(int argc, char * argv[])
         assert(resultObj == testobj);
     }
 
+    // Test calling  method instance
+    {
+        GET_AND_ASSERT(method, mono_class_get_method_from_name(klass, "TestArg0", 0));
+        auto resultObj = mono_runtime_invoke(method, testobj, nullptr, nullptr);
+        int result = *(int*)mono_object_unbox(resultObj);
+        assert(result == 10); // TODO: testobj constructor is not called
+    }
+
+    // Test calling  method instance
+    {
+        GET_AND_ASSERT(method, mono_class_get_method_from_name(klass, "TestArg1_int", 1));
+        int param1 = 10;
+        void* params[1] = { &param1 };
+        auto resultObj = mono_runtime_invoke(method, testobj, params, nullptr);
+        int result = *(int*)mono_object_unbox(resultObj);
+        assert(result == param1 + 1); // TODO: testobj constructor is not called
+    }
 
     GET_AND_ASSERT(klassClassWithAttribute, mono_class_from_name(image, "coreclrtest", "ClassWithAttribute"));
     GET_AND_ASSERT(klassTestAttribute, mono_class_from_name(image, "coreclrtest", "TestAttribute"));

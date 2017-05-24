@@ -525,8 +525,8 @@ extern "C" void mono_runtime_object_init(MonoObject *this_obj)
 extern "C" MonoObject* mono_runtime_invoke(MonoMethod *method, void *obj, void **params, MonoException **exc)
 {
     MethodTable* ptable;
-    OBJECTREF objref = ObjectToOBJECTREF((Object*)obj);
     GCX_COOP();
+    OBJECTREF objref = ObjectToOBJECTREF((Object*)obj);
 
     auto method_clr = (MonoMethod_clr*)method;
 
@@ -537,7 +537,14 @@ extern "C" MonoObject* mono_runtime_invoke(MonoMethod *method, void *obj, void *
     const int MAX_ARG_SLOT = 128;
     ARG_SLOT argslots[MAX_ARG_SLOT];
 
-    for (DWORD argIndex = 0; argIndex < numArgs; argIndex++)
+    DWORD slotIndex = 0;
+    if (methodSig.HasThis())
+    {
+        argslots[0] = ObjToArgSlot(objref);
+        slotIndex++;
+    }
+
+    for (DWORD argIndex = 0; argIndex < numArgs; argIndex++, slotIndex++)
     {
         int ofs = argIt.GetNextOffset();
         _ASSERTE(ofs != TransitionBlock::InvalidOffset);
@@ -569,21 +576,21 @@ extern "C" MonoObject* mono_runtime_invoke(MonoMethod *method, void *obj, void *
             case 1:
             case 2:
             case 4:
-                argslots[argIndex] = *(INT32*)params[argIndex];
+                argslots[slotIndex] = *(INT32*)params[argIndex];
                 break;
 
             case 8:
-                argslots[argIndex] = *(INT64*)params[argIndex];
+                argslots[slotIndex] = *(INT64*)params[argIndex];
                 break;
 
             default:
                 if (stackSize > sizeof(ARG_SLOT))
                 {
-                    argslots[argIndex] = PtrToArgSlot(params[argIndex]);
+                    argslots[slotIndex] = PtrToArgSlot(params[argIndex]);
                 }
                 else
                 {
-                    CopyMemory(&argslots[argIndex], params[argIndex], stackSize);
+                    CopyMemory(&argslots[slotIndex], params[argIndex], stackSize);
                 }
                 break;
             }
@@ -594,7 +601,7 @@ extern "C" MonoObject* mono_runtime_invoke(MonoMethod *method, void *obj, void *
         case ELEMENT_TYPE_ARRAY:
         case ELEMENT_TYPE_SZARRAY:
         case ELEMENT_TYPE_VAR:
-            argslots[argIndex] = ObjToArgSlot(ObjectToOBJECTREF((MonoObject_clr*)params[argIndex]));
+            argslots[slotIndex] = ObjToArgSlot(ObjectToOBJECTREF((MonoObject_clr*)params[argIndex]));
             break;
         default:
             assert(false && "This argType is not supported");

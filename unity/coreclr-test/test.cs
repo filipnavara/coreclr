@@ -22,6 +22,12 @@ namespace coreclrtest
 
     class test : ClassWithAttribute
     {
+        private int x = 0;
+        public test()
+        {
+            x = 7;
+        }
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         private static extern void InternalMethod();
 
@@ -62,6 +68,16 @@ namespace coreclrtest
         {
             Console.WriteLine(arg1);
             return arg1;
+        }
+
+        public int TestArg0()
+        {
+            return x + 10;
+        }
+
+        public int TestArg1_int(int a)
+        {
+            return x + a + 1;
         }
     }
 }
