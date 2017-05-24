@@ -53,6 +53,10 @@ static inline MonoType_clr MonoType_clr_from_MonoType(MonoType* type)
     return MonoType_clr::FromPtr(type);
 }
 
+static inline MonoType* MonoType_clr_to_MonoType(MonoType_clr type)
+{
+    return (MonoType*)type.AsPtr();
+}
 
 // dummy function just to test that it is exported in coreclr so/dll
 extern "C" EXPORT_API void mono_test_export()
@@ -911,8 +915,17 @@ extern "C" MonoClass* mono_field_get_parent(MonoClassField *field)
 
 extern "C" MonoType* mono_field_get_type(MonoClassField *field)
 {
-    ASSERT_NOT_IMPLEMENTED;
-    return NULL;
+    CONTRACTL
+    {
+        PRECONDITION(field != NULL);
+    }
+    CONTRACTL_END;
+             
+    auto field_clr = (MonoClassField_clr*)field;
+
+    MonoType_clr typeHandle = field_clr->GetFieldTypeHandleThrowing();
+
+    return MonoType_clr_to_MonoType(typeHandle);
 }
 
 extern "C" int mono_type_get_type(MonoType *type)
