@@ -48,7 +48,7 @@ namespace coreclrtest
             return a + b;
         }
 
-        public static int StaticTestArg1_float(int a)
+        public static float StaticTestArg1_float(float a)
         {
             return a + 1;
         }

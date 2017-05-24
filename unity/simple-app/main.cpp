@@ -193,14 +193,41 @@ int main(int argc, char * argv[])
     {
         GET_AND_ASSERT(method_StaticTestArg1_int, mono_class_get_method_from_name(klass, "StaticTestArg1_int", 1));
         int param1 = 10;
-        void* params[2] = { &param1, nullptr };
+        void* params[1] = { &param1 };
         auto resultObj = mono_runtime_invoke(method_StaticTestArg1_int, nullptr, params, nullptr);
         int result = *(int*)mono_object_unbox(resultObj);
         assert(result == param1 + 1);
     }
+    {
+        GET_AND_ASSERT(method, mono_class_get_method_from_name(klass, "StaticTestArg2_int", 2));
+        int param1 = 10;
+        int param2 = 15;
+        void* params[2] = { &param1, &param2 };
+        auto resultObj = mono_runtime_invoke(method, nullptr, params, nullptr);
+        int result = *(int*)mono_object_unbox(resultObj);
+        assert(result == param1 + param2);
+    }
+    {
+        GET_AND_ASSERT(method, mono_class_get_method_from_name(klass, "StaticTestArg2_float", 2));
+        float param1 = 10.0f;
+        float param2 = 15.0f;
+        void* params[2] = { &param1, &param2 };
+        auto resultObj = mono_runtime_invoke(method, nullptr, params, nullptr);
+        float result = *(float*)mono_object_unbox(resultObj);
+        assert(result == param1 + param2);
+    }
 
     // Create Object
     GET_AND_ASSERT(testobj, mono_object_new(domain, klass));
+
+    {
+        GET_AND_ASSERT(method, mono_class_get_method_from_name(klass, "StaticTestArg1_obj", 1));
+        void* params[1] = { testobj };
+        auto resultObj = mono_runtime_invoke(method, nullptr, params, nullptr);
+        // GC is conservative, so the object should never move
+        assert(resultObj == testobj);
+    }
+
 
     GET_AND_ASSERT(klassClassWithAttribute, mono_class_from_name(image, "coreclrtest", "ClassWithAttribute"));
     GET_AND_ASSERT(klassTestAttribute, mono_class_from_name(image, "coreclrtest", "TestAttribute"));

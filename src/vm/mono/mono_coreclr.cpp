@@ -543,31 +543,64 @@ extern "C" MonoObject* mono_runtime_invoke(MonoMethod *method, void *obj, void *
         _ASSERTE(ofs != TransitionBlock::InvalidOffset);
         auto stackSize = argIt.GetArgSize();
 
-        // The following code is trying to follow the code
-        // inside MethodDescCallSite::CallTargetWorker
-        switch (stackSize)
+        auto argTH = methodSig.GetLastTypeHandleNT();
+        auto argType = argTH.GetInternalCorElementType();
+
+        // TODO: Factorize ValueType detection and Managed detection
+        switch (argType)
         {
-        case 1:
-        case 2:
-        case 4:
-            argslots[argIndex] = *(INT32*)params[argIndex];
-            break;
+        case ELEMENT_TYPE_VALUETYPE:
+        case ELEMENT_TYPE_BOOLEAN:      // boolean
+        case ELEMENT_TYPE_I1:           // byte
+        case ELEMENT_TYPE_U1:
+        case ELEMENT_TYPE_I2:           // short
+        case ELEMENT_TYPE_U2:
+        case ELEMENT_TYPE_CHAR:         // char
+        case ELEMENT_TYPE_I4:           // int
+        case ELEMENT_TYPE_U4:
+        case ELEMENT_TYPE_I8:           // long
+        case ELEMENT_TYPE_U8:
+        case ELEMENT_TYPE_R4:           // float
+        case ELEMENT_TYPE_R8:           // double
+        case ELEMENT_TYPE_I:
+        case ELEMENT_TYPE_U:
+            switch (stackSize)
+            {
+            case 1:
+            case 2:
+            case 4:
+                argslots[argIndex] = *(INT32*)params[argIndex];
+                break;
 
-        case 8:
-            argslots[argIndex] = *(INT64*)params[argIndex];
-            break;
+            case 8:
+                argslots[argIndex] = *(INT64*)params[argIndex];
+                break;
 
+            default:
+                if (stackSize > sizeof(ARG_SLOT))
+                {
+                    argslots[argIndex] = PtrToArgSlot(params[argIndex]);
+                }
+                else
+                {
+                    CopyMemory(&argslots[argIndex], params[argIndex], stackSize);
+                }
+                break;
+            }
+            break;
+        case ELEMENT_TYPE_STRING:
+        case ELEMENT_TYPE_OBJECT:
+        case ELEMENT_TYPE_CLASS:
+        case ELEMENT_TYPE_ARRAY:
+        case ELEMENT_TYPE_SZARRAY:
+        case ELEMENT_TYPE_VAR:
+            argslots[argIndex] = ObjToArgSlot(ObjectToOBJECTREF((MonoObject_clr*)params[argIndex]));
+            break;
         default:
-            if (stackSize > sizeof(ARG_SLOT))
-            {
-                argslots[argIndex] = PtrToArgSlot(params[argIndex]);
-            }
-            else
-            {
-                CopyMemory(&argslots[argIndex], params[argIndex], stackSize);
-            }
+            assert(false && "This argType is not supported");
             break;
         }
+        // The following code is trying to follow the code
     }
 
     MethodDescCallSite invoker((MonoMethod_clr*)method, &objref);
@@ -589,20 +622,28 @@ extern "C" MonoObject* mono_runtime_invoke(MonoMethod *method, void *obj, void *
     switch (retType)
     {
         case ELEMENT_TYPE_VALUETYPE:
-        case ELEMENT_TYPE_I1:
+        case ELEMENT_TYPE_BOOLEAN:      // boolean
+        case ELEMENT_TYPE_I1:           // byte
         case ELEMENT_TYPE_U1:
-        case ELEMENT_TYPE_I2:
+        case ELEMENT_TYPE_I2:           // short
         case ELEMENT_TYPE_U2:
-        case ELEMENT_TYPE_I4:
+        case ELEMENT_TYPE_CHAR:         // char
+        case ELEMENT_TYPE_I4:           // int
         case ELEMENT_TYPE_U4:
-        case ELEMENT_TYPE_I8:
+        case ELEMENT_TYPE_I8:           // long
         case ELEMENT_TYPE_U8:
-        case ELEMENT_TYPE_R4:
-        case ELEMENT_TYPE_R8:
+        case ELEMENT_TYPE_R4:           // float
+        case ELEMENT_TYPE_R8:           // double
+        case ELEMENT_TYPE_I:
+        case ELEMENT_TYPE_U:
             return (MonoObject*)OBJECTREFToObject(retTH.GetMethodTable()->Box(&result));
             break;
         case ELEMENT_TYPE_STRING:
         case ELEMENT_TYPE_OBJECT:
+        case ELEMENT_TYPE_CLASS:
+        case ELEMENT_TYPE_ARRAY:
+        case ELEMENT_TYPE_SZARRAY:
+        case ELEMENT_TYPE_VAR:
             return (MonoObject*)OBJECTREFToObject(ArgSlotToObj(result));
             break;
         default:
