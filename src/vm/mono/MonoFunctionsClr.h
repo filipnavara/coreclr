@@ -10,5 +10,7 @@ DO_API(void, mono_gc_enable_stress_heap, ())
 DO_API(void, mono_debug_assert_dialog, (const char *szFile, int iLine, const char *szExpr))
 DO_API(gboolean, mono_gc_preemptive, (gboolean enable))
 
+#define ENABLE_MONO_MEMORY_PROFILER 1
+
 // Include regular Unity Mono functions
 #include <MonoFunctions.h>
