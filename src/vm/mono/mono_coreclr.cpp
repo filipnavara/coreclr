@@ -2120,7 +2120,6 @@ typedef void* (*MonoDlFallbackClose) (void *handle, void *user_data);
 // Not defined in current mono-consoles,  Nov 25 2013
 extern "C" MonoDlFallbackHandler* mono_dl_fallback_register(MonoDlFallbackLoad load_func, MonoDlFallbackSymbol symbol_func, MonoDlFallbackClose close_func, void *user_data)
 {
-    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 
