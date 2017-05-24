@@ -1477,8 +1477,10 @@ extern "C" MonoType* mono_signature_get_params(MonoMethodSignature *sig, gpointe
 
 extern "C" MonoType* mono_signature_get_return_type(MonoMethodSignature *sig)
 {
-    ASSERT_NOT_IMPLEMENTED;
-    return NULL;
+    MonoMethodSignature_clr* signature = (MonoMethodSignature_clr*)sig;
+    MetaSig msig(signature);
+    TypeHandle reth = msig.GetRetTypeHandleThrowing();
+    return (MonoType*)reth.AsPtr();
 }
 
 extern "C" MonoType* mono_class_get_type(MonoClass *klass)
