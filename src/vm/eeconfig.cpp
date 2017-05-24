@@ -890,7 +890,11 @@ HRESULT EEConfig::sync()
 #endif
 
 #ifdef FEATURE_CONSERVATIVE_GC
-    iGCConservative =  (CLRConfig::GetConfigValue(CLRConfig::UNSUPPORTED_gcConservative) != 0);
+    // For mono, we are going to use the GC in conservative only mode
+    // Ideally we should use an env variable, but because PAL/CoreCLR seems to not provide
+    // a portable API to do a setenv, we are setting it here instead of defining it
+    // in mono_init_jit
+    iGCConservative = true; // (CLRConfig::GetConfigValue(CLRConfig::UNSUPPORTED_gcConservative) != 0);
 #endif // FEATURE_CONSERVATIVE_GC
 
 #ifdef _WIN64
