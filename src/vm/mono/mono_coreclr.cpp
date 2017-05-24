@@ -2105,37 +2105,37 @@ typedef void(*MonoProfileThreadFunc)     (void *prof, unsigned long tid);
 
 extern "C" void mono_profiler_install(void *prof, MonoProfileFunc shutdown_callback)
 {
-    ASSERT_NOT_IMPLEMENTED;
+    // NOP
 }
 
 extern "C" void mono_profiler_set_events(int events)
 {
-    ASSERT_NOT_IMPLEMENTED;
+    // NOP
 }
 
 extern "C" void mono_profiler_install_enter_leave(MonoProfileMethodFunc enter, MonoProfileMethodFunc fleave)
 {
-    ASSERT_NOT_IMPLEMENTED;
+    // NOP
 }
 
 extern "C" void mono_profiler_install_gc(MonoProfileGCFunc callback, MonoProfileGCResizeFunc heap_resize_callback)
 {
-    ASSERT_NOT_IMPLEMENTED;
+    // NOP
 }
 
 extern "C" void mono_profiler_install_allocation(MonoProfileAllocFunc callback)
 {
-    ASSERT_NOT_IMPLEMENTED;
+    // NOP
 }
 
 extern "C" void mono_profiler_install_jit_end(MonoProfileJitResult jit_end)
 {
-    ASSERT_NOT_IMPLEMENTED;
+    // NOP
 }
 
 extern "C" void mono_profiler_install_thread(MonoProfileThreadFunc start, MonoProfileThreadFunc end)
 {
-    ASSERT_NOT_IMPLEMENTED;
+    // NOP
 }
 
 //DO_API(void, mono_gc_base_init, ())
@@ -2143,7 +2143,7 @@ extern "C" void mono_profiler_install_thread(MonoProfileThreadFunc start, MonoPr
 //DO_API(void, mono_profiler_install_statistical_call_chain, (MonoProfileStatCallChainFunc callback, int call_chain_depth))
 extern "C" void mono_profiler_install_exception(MonoProfileExceptionFunc throw_callback, MonoProfileMethodFunc exc_method_leave, MonoProfileExceptionClauseFunc clause_callback)
 {
-    ASSERT_NOT_IMPLEMENTED;
+    // NOP
 }
 
 #endif
