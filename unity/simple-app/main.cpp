@@ -163,10 +163,10 @@ int main(int argc, char * argv[])
 #else
 #if defined(__APPLE__)
     std::string monoLibFolder = "/usr/local/share/dotnet/shared/Microsoft.NETCore.App/2.0.0-preview1-002111-00";
-    std::string monoEtcFolder = "/Users/sergeyyanchi/development/hackweek2017/coreclr/bin/Product/OSX.x64.Debug";
+    std::string monoEtcFolder = "";
 #else
     std::string monoLibFolder = "C:\\Program Files\\dotnet\\shared\\Microsoft.NETCore.App\\2.0.0-preview1-002111-00";
-    std::string monoEtcFolder = "C:\\Code\\dotnet\\coreclr\\bin\\Product\\Windows_NT.x64.Debug";
+    std::string monoEtcFolder = "";
 #endif
 #endif
 
