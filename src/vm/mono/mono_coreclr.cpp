@@ -24,6 +24,8 @@ ICLRRuntimeHost2* g_CLRRuntimeHost;
 MonoDomain* g_RootDomain;
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 
+CrstStatic g_gc_handles_lock;
+
 char s_AssemblyDir[MAX_PATH] = { 0 };
 char s_EtcDir[MAX_PATH] = { 0 };
 char s_AssemblyPaths[4096] = { 0 };
@@ -235,6 +237,8 @@ void list_tpa(const wchar_t* searchPath, SString& tpa)
 
 extern "C" MonoDomain* mono_jit_init_version(const char *file, const char* runtime_version)
 {
+    g_gc_handles_lock.Init(CrstMonoHandles);
+
     if (!g_CLRRuntimeHost)
     {
 #if defined(__APPLE__)
@@ -1646,15 +1650,40 @@ extern "C" void mono_set_assemblies_path(const char* name)
     strcpy(s_AssemblyPaths, name);
 }
 
+
+guint32 handleId = 0;
+MapSHashWithRemove<guint32, OBJECTHANDLE> g_gc_map_id_to_handle;
+
 extern "C" guint32 mono_gchandle_new(MonoObject *obj, gboolean pinned)
 {
-    ASSERT_NOT_IMPLEMENTED;
-    return NULL;
+    // TODO
+    // mono is using a guint32 to identify an GCHandle
+    // while coreclr is using a OBJECTHANDLE which is a pointer
+    // so we are maintaining a map here between an generated identifier
+    // and the OBJECTHANDLE
+    CrstHolder lock(&g_gc_handles_lock);
+
+    auto objref = ObjectToOBJECTREF((MonoObject_clr*)obj);
+    auto objhandle = pinned ? 
+    GetAppDomain()->CreatePinningHandle(objref) :
+    GetAppDomain()->CreateHandle(objref);
+
+    auto id = ++handleId;
+    g_gc_map_id_to_handle.Add(id, objhandle);
+    
+    return id;
 }
 
 extern "C" MonoObject* mono_gchandle_get_target(guint32 gchandle)
 {
-    ASSERT_NOT_IMPLEMENTED;
+    CrstHolder lock(&g_gc_handles_lock);
+
+    OBJECTHANDLE handle;
+    if (g_gc_map_id_to_handle.Lookup(gchandle, &handle))
+    {
+        OBJECTREF objref = ObjectFromHandle(handle);
+        return (MonoObject*)OBJECTREFToObject(objref);
+    }
     return NULL;
 }
 
@@ -1678,7 +1707,14 @@ extern "C" MonoObject* mono_assembly_get_object(MonoDomain *domain, MonoAssembly
 
 extern "C" void mono_gchandle_free(guint32 gchandle)
 {
-    ASSERT_NOT_IMPLEMENTED;
+    CrstHolder lock(&g_gc_handles_lock);
+
+    OBJECTHANDLE handle;
+    if (g_gc_map_id_to_handle.Lookup(gchandle, &handle))
+    {
+        DestroyHandle(handle);
+        g_gc_map_id_to_handle.Remove(gchandle);
+    }
 }
 
 typedef gboolean(*MonoStackWalk) (MonoMethod *method, gint32 native_offset, gint32 il_offset, gboolean managed, gpointer data);
