@@ -84,5 +84,11 @@ namespace coreclrtest
         {
             return Guid.Parse("81a130d2-502f-4cf1-a376-63edeb000e9f");
         }
+
+        public unsafe void* TestPtr(void* ptr)
+        {
+            Console.WriteLine(new IntPtr(ptr).ToString("x8"));
+            return ptr;
+        }
     }
 }
