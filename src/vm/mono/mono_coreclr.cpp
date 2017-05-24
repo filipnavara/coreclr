@@ -1802,24 +1802,28 @@ extern "C" MonoObject * mono_object_new_specific(MonoVTable *vtable)
 
 extern "C" void mono_gc_collect(int generation)
 {
+    FCALL_CONTRACT;
+    _ASSERTE(generation >= -1);
+    GCHeapUtilities::GetGCHeap()->GarbageCollect(generation, false, collection_blocking);
 }
 
 extern "C" int mono_gc_max_generation()
 {
-    ASSERT_NOT_IMPLEMENTED;
-    return NULL;
+    FCALL_CONTRACT;
+    return GCHeapUtilities::GetGCHeap()->GetMaxGeneration();
 }
 
 extern "C" gint64 mono_gc_get_used_size()
 {
-    ASSERT_NOT_IMPLEMENTED;
-    return NULL;
+    FCALL_CONTRACT;
+    return GCHeapUtilities::GetGCHeap()->GetTotalBytesInUse();
 }
 
 extern "C" gint64 mono_gc_get_heap_size()
 {
-    ASSERT_NOT_IMPLEMENTED;
-    return NULL;
+    FCALL_CONTRACT;
+    // NOT CORRECT
+    return GCHeapUtilities::GetGCHeap()->GetTotalBytesInUse();
 }
 
 extern "C" void mono_gc_wbarrier_generic_store(gpointer ptr, MonoObject* value)
@@ -1828,8 +1832,7 @@ extern "C" void mono_gc_wbarrier_generic_store(gpointer ptr, MonoObject* value)
 
 extern "C" MonoAssembly* mono_image_get_assembly(MonoImage *image)
 {
-    ASSERT_NOT_IMPLEMENTED;
-    return NULL;
+    return (MonoAssembly*)image;
 }
 
 extern "C" MonoAssembly* mono_assembly_open(const char *filename, int *status)
