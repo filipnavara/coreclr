@@ -939,8 +939,84 @@ extern "C" MonoType* mono_field_get_type(MonoClassField *field)
 
 extern "C" int mono_type_get_type(MonoType *type)
 {
-    ASSERT_NOT_IMPLEMENTED;
-    return NULL;
+    MonoType_clr* clrType = reinterpret_cast<MonoType_clr*>(type);
+    auto elementType = clrType->GetSignatureCorElementType();
+
+    switch(elementType)
+    {
+        case ELEMENT_TYPE_VOID:
+            return MONO_TYPE_VOID;
+        case ELEMENT_TYPE_END:
+            return MONO_TYPE_END;
+        case ELEMENT_TYPE_PTR:
+            return MONO_TYPE_PTR;
+        case ELEMENT_TYPE_BYREF:
+            return MONO_TYPE_BYREF;
+        case ELEMENT_TYPE_STRING:
+            return MONO_TYPE_STRING;
+        case ELEMENT_TYPE_R4:
+            return MONO_TYPE_R4;
+        case ELEMENT_TYPE_R8:
+            return MONO_TYPE_R8;
+        case ELEMENT_TYPE_I8:
+            return MONO_TYPE_I8;
+        case ELEMENT_TYPE_I4:
+            return MONO_TYPE_I4;
+        case ELEMENT_TYPE_I2:
+            return MONO_TYPE_I2;
+        case ELEMENT_TYPE_I1:
+            return MONO_TYPE_I1;
+        case ELEMENT_TYPE_U8:
+            return MONO_TYPE_U8;
+        case ELEMENT_TYPE_U4:
+            return MONO_TYPE_U4;
+        case ELEMENT_TYPE_U2:
+            return MONO_TYPE_U2;
+        case ELEMENT_TYPE_U1:
+            return MONO_TYPE_U1;
+        case ELEMENT_TYPE_CLASS:
+            return MONO_TYPE_CLASS;
+        case ELEMENT_TYPE_BOOLEAN:
+            return MONO_TYPE_BOOLEAN;
+        case ELEMENT_TYPE_CHAR:
+            return MONO_TYPE_CHAR;
+        case ELEMENT_TYPE_VALUETYPE:
+            return MONO_TYPE_VALUETYPE;
+        case ELEMENT_TYPE_VAR:
+            return MONO_TYPE_VAR;
+        case ELEMENT_TYPE_ARRAY:
+            return MONO_TYPE_ARRAY;
+        case ELEMENT_TYPE_GENERICINST:
+            return MONO_TYPE_GENERICINST;
+        case ELEMENT_TYPE_TYPEDBYREF:
+            return MONO_TYPE_TYPEDBYREF;
+        case ELEMENT_TYPE_I:
+            return MONO_TYPE_I;
+        case ELEMENT_TYPE_U:
+            return MONO_TYPE_U;
+        case ELEMENT_TYPE_FNPTR:
+            return MONO_TYPE_FNPTR;
+        case ELEMENT_TYPE_OBJECT:
+            return MONO_TYPE_OBJECT;
+        case ELEMENT_TYPE_SZARRAY:
+            return MONO_TYPE_SZARRAY;
+        case ELEMENT_TYPE_MVAR:
+            return MONO_TYPE_MVAR;
+        case ELEMENT_TYPE_CMOD_REQD:
+            return MONO_TYPE_CMOD_REQD;
+        case ELEMENT_TYPE_CMOD_OPT:
+            return MONO_TYPE_CMOD_OPT;
+        case ELEMENT_TYPE_INTERNAL:
+            return MONO_TYPE_INTERNAL;
+        case ELEMENT_TYPE_MODIFIER:
+            return MONO_TYPE_MODIFIER;
+        case ELEMENT_TYPE_SENTINEL:
+            return MONO_TYPE_SENTINEL;
+        case ELEMENT_TYPE_PINNED:
+            return MONO_TYPE_PINNED;
+        default:
+            return 0;
+    }
 }
 
 extern "C" const char* mono_method_get_name(MonoMethod *method)
@@ -1232,8 +1308,8 @@ extern "C" gint32 mono_class_array_element_size(MonoClass *ac)
 
 extern "C" MonoObject* mono_type_get_object(MonoDomain *domain, MonoType *type)
 {
-    ASSERT_NOT_IMPLEMENTED;
-    return NULL;
+    MonoType_clr* clrType = reinterpret_cast<MonoType_clr*>(type);
+    return (MonoObject*) OBJECTREFToObject(clrType->GetManagedClassObject());
 }
 
 extern "C" gboolean mono_class_is_generic(MonoClass* klass)

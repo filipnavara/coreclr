@@ -4,6 +4,7 @@
 
 // Include regular Unity MonoTypes.h header
 #include <MonoTypes.h>
+#include <MonoTypeSignatures.h>
 
 // MONO_CORECLR (START)
 // Types introduced for replicating GCBeginFrame behavior outside the CLR
