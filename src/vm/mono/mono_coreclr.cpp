@@ -1597,7 +1597,7 @@ extern "C" char mono_signature_is_instance(MonoMethodSignature *signature)
 
 extern "C" MonoMethod* mono_method_get_last_managed()
 {
-    ASSERT_NOT_IMPLEMENTED;
+    // NOP
     return NULL;
 }
 
