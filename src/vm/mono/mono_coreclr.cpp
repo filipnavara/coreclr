@@ -1603,8 +1603,8 @@ extern "C" MonoMethod* mono_method_get_last_managed()
 
 extern "C" MonoClass* mono_get_enum_class()
 {
-    ASSERT_NOT_IMPLEMENTED;
-    return NULL;
+    MonoImage* img = mono_get_corlib();
+    return mono_class_from_name(img, "System", "Enum");
 }
 
 extern "C" MonoType* mono_class_get_byref_type(MonoClass *klass)

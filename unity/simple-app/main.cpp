@@ -216,6 +216,8 @@ int main(int argc, char * argv[])
 
     GET_AND_ASSERT(corlib, mono_get_corlib());
 
+    GET_AND_ASSERT(enumClass, mono_get_enum_class());
+
     printf("Cleaning up...\n");
     mono_unity_jit_cleanup(domain);
 
