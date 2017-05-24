@@ -1656,7 +1656,18 @@ MapSHashWithRemove<guint32, OBJECTHANDLE> g_gc_map_id_to_handle;
 
 extern "C" guint32 mono_gchandle_new(MonoObject *obj, gboolean pinned)
 {
-    // TODO
+    CONTRACTL
+    {
+        NOTHROW;
+        GC_NOTRIGGER;
+        MODE_COOPERATIVE;
+        PRECONDITION(obj != NULL);
+    }
+    CONTRACTL_END;
+
+    // TODO: This method is not accurate with Cooperative/Preemptive mode
+
+    // NOTE
     // mono is using a guint32 to identify an GCHandle
     // while coreclr is using a OBJECTHANDLE which is a pointer
     // so we are maintaining a map here between an generated identifier
@@ -1676,6 +1687,16 @@ extern "C" guint32 mono_gchandle_new(MonoObject *obj, gboolean pinned)
 
 extern "C" MonoObject* mono_gchandle_get_target(guint32 gchandle)
 {
+    CONTRACTL
+    {
+        NOTHROW;
+        GC_NOTRIGGER;
+        MODE_COOPERATIVE;
+    }
+    CONTRACTL_END;
+
+    // TODO: This method is not accurate with Cooperative/Preemptive mode
+
     CrstHolder lock(&g_gc_handles_lock);
 
     OBJECTHANDLE handle;
@@ -1684,6 +1705,8 @@ extern "C" MonoObject* mono_gchandle_get_target(guint32 gchandle)
         OBJECTREF objref = ObjectFromHandle(handle);
         return (MonoObject*)OBJECTREFToObject(objref);
     }
+
+    // throw an error?
     return NULL;
 }
 
