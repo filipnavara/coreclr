@@ -1071,8 +1071,9 @@ extern "C" gboolean mono_class_is_valuetype(MonoClass *klass)
 
 extern "C" guint32 mono_signature_get_param_count(MonoMethodSignature *sig)
 {
-    ASSERT_NOT_IMPLEMENTED;
-    return NULL;
+    MonoMethodSignature_clr* msig = (MonoMethodSignature_clr*)sig;
+    MetaSig metasig(msig);
+    return metasig.NumFixedArgs();
 }
 
 extern "C" char* mono_string_to_utf8(MonoString *string_obj)
