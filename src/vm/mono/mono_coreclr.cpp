@@ -47,6 +47,7 @@ typedef MethodDesc MonoMethod_clr;
 typedef OBJECTREF MonoObjectRef_clr;
 typedef TypeHandle MonoType_clr;
 typedef ArrayBase MonoArray_clr;
+typedef Thread MonoThread_clr;
 typedef const COR_SIGNATURE MonoMethodSignature_clr;
 
 static inline MonoType_clr MonoType_clr_from_MonoType(MonoType* type)
@@ -1258,13 +1259,25 @@ extern "C" gboolean unity_mono_method_is_inflated(MonoMethod* method)
 
 extern "C" MonoThread * mono_thread_attach(MonoDomain *domain)
 {
-    ASSERT_NOT_IMPLEMENTED;
-    return NULL;
+    CONTRACTL{
+        PRECONDITION(domain == g_RootDomain);
+    } CONTRACTL_END;
+    auto domain_clr = (MonoDomain_clr*)domain;
+    MonoThread_clr* currentThread = GetThread();
+
+    assert(domain_clr->CanThreadEnter(currentThread));
+
+    return (MonoThread*)currentThread;
 }
 
 extern "C" void mono_thread_detach(MonoThread *thread)
 {
-    ASSERT_NOT_IMPLEMENTED;
+    CONTRACTL{
+        PRECONDITION(thread != nullptr);
+    } CONTRACTL_END;
+    auto thread_clr = (MonoThread_clr*)thread;
+    // TODO: FALSE or TRUE there?
+    thread_clr->DetachThread(FALSE);
 }
 
 extern "C" MonoThread * mono_thread_exit()
@@ -1280,7 +1293,12 @@ extern "C" MonoThread * mono_thread_current(void)
 
 extern "C" void mono_thread_set_main(MonoThread* thread)
 {
-    ASSERT_NOT_IMPLEMENTED;
+    CONTRACTL{
+        PRECONDITION(thread != nullptr);
+    } CONTRACTL_END;
+    auto thread_clr = (MonoThread_clr*)thread;
+    // almost NOP
+    assert(AppDomain::GetCurrentDomain()->CanThreadEnter(thread_clr));
 }
 
 extern "C" void mono_set_find_plugin_callback(gconstpointer method)
