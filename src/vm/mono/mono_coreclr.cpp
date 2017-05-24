@@ -5,6 +5,7 @@
 #include "mscoree.h"
 #include "threads.h"
 #include "ecall.h"
+#include "stringliteralmap.h"
 
 #ifdef FEATURE_PAL
 #include "pal.h"
@@ -1007,8 +1008,13 @@ extern "C" char* mono_string_to_utf8(MonoString *string_obj)
 
 extern "C" MonoString* mono_string_new_wrapper(const char* text)
 {
-    ASSERT_NOT_IMPLEMENTED;
-    return NULL;
+    int length = strlen(text) + 1;
+    wchar_t* wText = new wchar_t[length];
+    Wsz_mbstowcs(wText, text, length);
+
+    EEStringData stringData(length, wText);
+
+    return (MonoString*)OBJECTREFToObject(AllocateStringObject(&stringData));
 }
 
 extern "C" MonoString* mono_string_new_len(MonoDomain *domain, const char *text, guint32 length)
