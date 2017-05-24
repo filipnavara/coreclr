@@ -821,7 +821,7 @@ extern "C" MonoClass* mono_get_object_class()
 #if PLATFORM_WIN || PLATFORM_OSX || PLATFORM_ANDROID || PLATFORM_TIZEN || PLATFORM_STV || PLATFORM_LINUX
 extern "C" void mono_set_signal_chaining(gboolean)
 {
-    ASSERT_NOT_IMPLEMENTED;
+    // NOP
 }
 
 #endif
@@ -1285,7 +1285,7 @@ extern "C" void mono_thread_set_main(MonoThread* thread)
 
 extern "C" void mono_set_find_plugin_callback(gconstpointer method)
 {
-    ASSERT_NOT_IMPLEMENTED;
+    // NOP
 }
 
 extern "C" void mono_security_enable_core_clr()
@@ -1375,7 +1375,7 @@ extern "C" void mono_set_ignore_version_and_key_when_finding_assemblies_already_
 #endif
 extern "C" void mono_debug_init(int format)
 {
-    ASSERT_NOT_IMPLEMENTED;
+    // NOP
 }
 
 #if !USE_CONSOLEBRANCH_MONO
@@ -1389,7 +1389,7 @@ extern "C" gboolean mono_is_debugger_attached(void)
 
 extern "C" void mono_debug_open_image_from_memory(MonoImage *image, const char *raw_contents, int size)
 {
-    ASSERT_NOT_IMPLEMENTED;
+    // NOP
 }
 
 extern "C" guint32 mono_field_get_flags(MonoClassField *field)
