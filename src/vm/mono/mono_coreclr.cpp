@@ -1084,7 +1084,7 @@ extern "C" char* mono_string_to_utf8(MonoString *string_obj)
 
 extern "C" MonoString* mono_string_new_wrapper(const char* text)
 {
-    int length = strlen(text) + 1;
+    int length = (int)strlen(text) + 1;
     wchar_t* wText = new wchar_t[length];
     Wsz_mbstowcs(wText, text, length);
 
