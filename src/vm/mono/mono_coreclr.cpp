@@ -489,15 +489,16 @@ extern "C" MonoObject* mono_object_new(MonoDomain *domain, MonoClass *klass)
     {
         THROWS;
         GC_TRIGGERS;
-        MODE_COOPERATIVE;
-        INJECT_FAULT(COMPlusThrowOM()); // TODO: Check if this is applicable here
         PRECONDITION(domain != NULL);
         PRECONDITION(klass != NULL);
     }
     CONTRACTL_END;
 
-    OBJECTREF objectRef = AllocateObject((MethodTable*)klass);
-    return NULL;
+    {
+        GCX_COOP();
+        OBJECTREF objectRef = AllocateObject((MethodTable*)klass);
+        return (MonoObject*)OBJECTREFToObject(objectRef);
+    }
 }
 
 extern "C" void mono_runtime_object_init(MonoObject *this_obj)
