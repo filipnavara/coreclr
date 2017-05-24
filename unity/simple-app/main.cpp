@@ -110,6 +110,31 @@ void* get_method(const char* functionName)
 
 #define DO_API(r,n,p) typedef r (*type_##n)p; type_##n n = (type_##n)get_method(#n);
 
+#define GET_AND_ASSERT(what, code) \
+    printf("Quering %s:", #what); \
+    auto what = code; \
+    if(what == nullptr) \
+    { \
+        printf(" failed!\n"); \
+        return 1; \
+    } \
+    printf(" ok\n");
+
+#define GET_AND_ASSERT_MESSAGE(what, code, message, ...) \
+    printf(message, __VA_ARGS__); \
+    auto what = code; \
+    if(what == nullptr) \
+    { \
+        printf(" failed!\n"); \
+        return 1; \
+    } \
+    printf(" ok\n");
+
+#define ADD_INTERNAL_METHOD(method, namespace) \
+    printf("Adding internal method %s", #method); \
+    mono_add_internal_call(namespace"::"#method, reinterpret_cast<gconstpointer>(method)); \
+    printf(" ok\n");
+
 #include <MonoTypes.h>
 #include <MonoFunctions.h>
 
@@ -148,66 +173,36 @@ int main(int argc, char * argv[])
     printf("Setting up directories for Mono...\n");
     mono_set_dirs(monoLibFolder.c_str(), monoEtcFolder.c_str());
 
-    printf("Creating domain...\n");
-    MonoDomain *domain  = mono_jit_init_version ("myapp", "v4.0.30319");
-
-    if(domain == nullptr)
-    {
-        printf("Failed to create domain!\n");
-        return 1;
-    }
+    GET_AND_ASSERT(domain, mono_jit_init_version ("myapp", "v4.0.30319"));
+    GET_AND_ASSERT_MESSAGE(assembly, mono_domain_assembly_open (domain, dllPath.c_str()), "Opening assembly '%s': ", dllPath.c_str());
     
-    printf("Opening assembly '%s'...\n", dllPath.c_str());
-    MonoAssembly* assembly = mono_domain_assembly_open (domain, dllPath.c_str());
+    ADD_INTERNAL_METHOD(InternalMethod, "coreclrtest.test");
 
-    if(assembly == nullptr)
-    {
-        printf("Failed to load assembly!\n");
-        return 1;
-    }
-
-    printf("Adding internal method 'coreclrtest.test::InternalMethod'...\n");
-    mono_add_internal_call ("coreclrtest.test::InternalMethod", reinterpret_cast<gconstpointer>(InternalMethod));
-
-    printf("Getting image...\n");
-    MonoImage* image = mono_assembly_get_image(assembly);
-
-    if(image == nullptr)
-    {
-        printf("Failed to get image!\n");
-        return 1;
-    }
-
-    printf("Getting class...\n");
-    MonoClass* klass = mono_class_from_name(image, "coreclrtest", "test");
-
-    if(klass == nullptr)
-    {
-        printf("Failed to get class!\n");
-        return 1;
-    }
-
-    printf("Getting method...\n");
-    MonoMethod* method = mono_class_get_method_from_name (klass, "GetNumber", 0);
-
-    if(method == nullptr)
-    {
-        printf("Failed to get method!\n");
-        return 1;
-    }
-
-    printf("Invoking...\n");
-    MonoObject* returnValue = mono_runtime_invoke(method, nullptr, nullptr, nullptr);
-
-    if(returnValue == nullptr)
-    {
-        printf("Failed to invoke!\n");
-        return 1;
-    }
+    GET_AND_ASSERT(image, mono_assembly_get_image(assembly));
+    GET_AND_ASSERT(klass, mono_class_from_name(image, "coreclrtest", "test"));
+    GET_AND_ASSERT(method, mono_class_get_method_from_name (klass, "GetNumber", 0));
+    
+    GET_AND_ASSERT(returnValue, mono_runtime_invoke(method, nullptr, nullptr, nullptr));
 
     int int_result = *(int*)mono_object_unbox (returnValue);
-
     printf("Invoke result: %i\n", int_result);
+
+    GET_AND_ASSERT(klassClassWithAttribute, mono_class_from_name(image, "coreclrtest", "ClassWithAttribute"));
+    GET_AND_ASSERT(klassTestAttribute, mono_class_from_name(image, "coreclrtest", "TestAttribute"));
+    GET_AND_ASSERT(klassAnotherTestAttribute, mono_class_from_name(image, "coreclrtest", "AnotherTestAttribute"));
+    GET_AND_ASSERT(customAttrInfo, mono_custom_attrs_from_class(klassClassWithAttribute));
+
+    printf("class ClassWithAttribute with attribute TestAttribute: %i\n", mono_custom_attrs_has_attr(customAttrInfo, klassTestAttribute));
+    printf("class ClassWithAttribute with attribute AnotherTestAttribute: %i\n", mono_custom_attrs_has_attr(customAttrInfo, klassAnotherTestAttribute));
+
+    GET_AND_ASSERT(methodWithAttribute, mono_class_get_method_from_name (klass, "MethodWithAttribute", 0));
+    GET_AND_ASSERT(methodCustomAttrInfo, mono_custom_attrs_from_class(klassClassWithAttribute));
+
+    printf("class MethodWithAttribute with attribute TestAttribute: %i\n", mono_custom_attrs_has_attr(methodCustomAttrInfo, klassTestAttribute));
+    printf("class MethodWithAttribute with attribute AnotherTestAttribute: %i\n", mono_custom_attrs_has_attr(methodCustomAttrInfo, klassAnotherTestAttribute));
+ 
+    mono_custom_attrs_free(customAttrInfo);
+    mono_custom_attrs_free(methodCustomAttrInfo);
 
     printf("Cleaning up...\n");
     mono_unity_jit_cleanup(domain);

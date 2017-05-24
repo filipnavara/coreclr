@@ -1854,42 +1854,16 @@ extern "C" MonoArray* mono_custom_attrs_construct(MonoCustomAttrInfo *cinfo)
 
 extern "C" gboolean mono_custom_attrs_has_attr(MonoCustomAttrInfo *ainfo, MonoClass *attr_klass)
 {
-    bool hasAttribute = false;
-
-    MonoCustomAttrInfo_clr* info = reinterpret_cast<MonoCustomAttrInfo_clr*>(ainfo);
+    MonoClass_clr* clrClass = reinterpret_cast<MonoClass_clr*>(ainfo);
     MonoClass_clr* attributeClass = reinterpret_cast<MonoClass_clr*>(attr_klass);
 
-    MethodDescCallSite getCustomAttributes(info->getCustomAttributes, &info->typeInfo);
+    LPCUTF8 name, namespaze;
+	attributeClass->GetMDImport()->GetNameOfTypeDef(attributeClass->GetCl(), &name, &namespaze);
 
-    ARG_SLOT GetCustomAttributesArgs[] =
-    { 
-        0,
-        ObjToArgSlot(attributeClass->GetManagedClassObject()),
-        0,
-    };
+    char buf[512] = {0};
+    sprintf_s(buf, COUNTOF(buf), "%s.%s", namespaze, name);
 
-    GetCustomAttributesArgs[0] = ObjToArgSlot(info->typeInfo);
-
-    PTRARRAYREF CustomAttrArray = NULL;        
-    EX_TRY
-    {
-        CustomAttrArray = (PTRARRAYREF) getCustomAttributes.Call_RetOBJECTREF(GetCustomAttributesArgs);
-    }
-    EX_CATCH
-    {
-    }
-    EX_END_CATCH(SwallowAllExceptions)
-
-    GCPROTECT_BEGIN(CustomAttrArray)
-    {
-        if ((CustomAttrArray != NULL) && (CustomAttrArray->GetNumComponents() > 0))
-        {
-            hasAttribute = true;
-        }
-    }
-    GCPROTECT_END();
-
-    return hasAttribute;
+    return S_OK == clrClass->GetMDImport()->GetCustomAttributeByName(clrClass->GetCl(), buf, NULL, NULL);
 }
 
 extern "C" MonoCustomAttrInfo* mono_custom_attrs_from_field(MonoClass *klass, MonoClassField *field)
@@ -1902,34 +1876,14 @@ extern "C" MonoCustomAttrInfo* mono_custom_attrs_from_method(MonoMethod *method)
 {
     MonoMethod_clr* clrMethod = reinterpret_cast<MonoMethod_clr*>(method);
 
-    {
-        MethodDesc *pGetCustomAttributesMD = reinterpret_cast<MonoMethod_clr*>(mono_class_get_method_from_name((MonoClass*)clrMethod->GetMethodTable(), "GetCustomAttributes", 2));
-
-        MonoCustomAttrInfo_clr* info = new MonoCustomAttrInfo_clr();
-
-        info->typeInfo = clrMethod->GetMethodTable()->GetManagedClassObject();
-        info->getCustomAttributes = pGetCustomAttributesMD;
-
-        return (MonoCustomAttrInfo*)info;
-    }
+    return (MonoCustomAttrInfo*)clrMethod->GetMethodTable();
 }
 
 extern "C" MonoCustomAttrInfo* mono_custom_attrs_from_class(MonoClass *klass)
 {
     MonoClass_clr* clrClass = reinterpret_cast<MonoClass_clr*>(klass);
 
-    {
-        GCX_COOP();
-
-        MethodDesc *pGetCustomAttributesMD = reinterpret_cast<MonoMethod_clr*>(mono_class_get_method_from_name(klass, "GetCustomAttributes", 2));
-
-        MonoCustomAttrInfo_clr* info = new MonoCustomAttrInfo_clr();
-
-        info->typeInfo = clrClass->GetManagedClassObject();
-        info->getCustomAttributes = pGetCustomAttributesMD;
-
-        return (MonoCustomAttrInfo*)info;
-    }
+    return (MonoCustomAttrInfo*)clrClass;
 }
 
 extern "C" MonoCustomAttrInfo* mono_custom_attrs_from_assembly(MonoAssembly *assembly)
@@ -1946,8 +1900,7 @@ extern "C" MonoArray* mono_reflection_get_custom_attrs_by_type(MonoObject* objec
 
 extern "C" void mono_custom_attrs_free(MonoCustomAttrInfo* attr)
 {
-    MonoCustomAttrInfo_clr* info = reinterpret_cast<MonoCustomAttrInfo_clr*>(attr);
-    delete info;
+   
 }
 
 extern "C" void* mono_loader_get_last_error(void)

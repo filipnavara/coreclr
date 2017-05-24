@@ -4,6 +4,22 @@ using System.Runtime.InteropServices;
 
 namespace coreclrtest
 {
+    class TestAttribute : Attribute
+    {
+
+    }
+
+    class AnotherTestAttribute : Attribute
+    {
+
+    }
+
+    [TestAttribute]
+    class ClassWithAttribute
+    {
+
+    }
+
     class test
     {
         [MethodImpl(MethodImplOptions.InternalCall)]
@@ -14,6 +30,12 @@ namespace coreclrtest
             Console.WriteLine("Test from C#");
             InternalMethod();
             return 12;
+        }
+
+        [TestAttribute]
+        static void MethodWithAttribute()
+        {
+
         }
     }
 }
