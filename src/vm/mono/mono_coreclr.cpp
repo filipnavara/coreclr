@@ -179,16 +179,14 @@ extern "C" MonoMethod* mono_object_get_virtual_method(MonoObject *obj, MonoMetho
 
 extern "C" void mono_verifier_set_mode(MiniVerifierMode)
 {
-    ASSERT_NOT_IMPLEMENTED;
+    // NOP
     //TODO used in Runtime\Mono\MonoManager.cpp SetSecurityMode()
-    // NOP for now
 }
 
 extern "C" void mono_security_set_mode(MonoSecurityMode)
 {
-    ASSERT_NOT_IMPLEMENTED;
+    // NOP
     //TODO used in Runtime\Mono\MonoManager.cpp SetSecurityMode()
-    // NOP for now
 }
 
 extern "C" void mono_add_internal_call(const char *name, gconstpointer method)
@@ -1298,7 +1296,7 @@ extern "C" void mono_security_enable_core_clr()
 typedef gboolean(*MonoCoreClrPlatformCB) (const char *image_name);
 extern "C" void mono_security_set_core_clr_platform_callback(MonoCoreClrPlatformCB)
 {
-    ASSERT_NOT_IMPLEMENTED;
+    // NOP
 }
 
 #if MONO_2_12
@@ -1311,7 +1309,7 @@ extern "C" void mono_security_core_clr_set_options(MonoSecurityCoreCLROptions)
 
 extern "C" void mono_runtime_unhandled_exception_policy_set(MonoRuntimeUnhandledExceptionPolicy policy)
 {
-    ASSERT_NOT_IMPLEMENTED;
+    // NOP
 }
 
 #if UNITY_OSX
@@ -1879,18 +1877,18 @@ extern "C" guint32 mono_class_get_flags(MonoClass *klass)
 
 extern "C" int mono_parse_default_optimizations(const char* p)
 {
-    ASSERT_NOT_IMPLEMENTED;
+    // NOP
     return 0;
 }
 
 extern "C" void mono_set_defaults(int verbose_level, guint32 opts)
 {
-    ASSERT_NOT_IMPLEMENTED;
+    // NOP
 }
 
 extern "C" void mono_config_parse(const char *filename)
 {
-    ASSERT_NOT_IMPLEMENTED;
+    // NOP
 }
 
 extern "C" void mono_set_dirs(const char *assembly_dir, const char *config_dir)
