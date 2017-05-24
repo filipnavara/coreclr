@@ -257,11 +257,21 @@ int main(int argc, char * argv[])
     }
 
     // Test calling  method instance with a return type that has to be passed as an argument internally
+    MYGUID guid;
     {
         GET_AND_ASSERT(method, mono_class_get_method_from_name(klass, "TestGuid", 0));
         auto resultObj = mono_runtime_invoke(method, testobj, nullptr, nullptr);
-        MYGUID result = *(MYGUID*)mono_object_unbox(resultObj);
-        assert(result.Data1 == 0x81a130d2);
+        guid = *(MYGUID*)mono_object_unbox(resultObj);
+        assert(guid.Data1 == 0x81a130d2);
+        //assert(result == param1 + 1); // TODO: testobj constructor is not called
+    }
+    // Test calling passing a large struct implicitly by pointer
+    {
+        GET_AND_ASSERT(method, mono_class_get_method_from_name(klass, "TestGuid1", 1));
+        void* params[1] = { &guid };
+        auto resultObj = mono_runtime_invoke(method, testobj, params, nullptr);
+        auto guid1 = *(MYGUID*)mono_object_unbox(resultObj);
+        assert(guid.Data1 == guid1.Data1);
         //assert(result == param1 + 1); // TODO: testobj constructor is not called
     }
 
