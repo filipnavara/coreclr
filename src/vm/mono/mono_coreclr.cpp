@@ -1213,8 +1213,12 @@ extern "C" gboolean mono_class_is_generic(MonoClass* klass)
 
 extern "C" gboolean mono_class_is_inflated(MonoClass* klass)
 {
-    ASSERT_NOT_IMPLEMENTED;
-    return FALSE;
+    CONTRACTL{
+        PRECONDITION(klass != nullptr);
+    } CONTRACTL_END;
+    MonoClass_clr* klass_clr = (MonoClass_clr*)klass;
+    // TODO: is it really the concept behind inflated? (generic instance?)
+    return klass_clr->HasInstantiation();
 }
 
 #if !USE_CONSOLEBRANCH_MONO
