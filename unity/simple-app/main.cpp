@@ -214,6 +214,8 @@ int main(int argc, char * argv[])
 
     printf("Assemblies should be the same (1): %i\n", loadedAssembly == assembly);
 
+    GET_AND_ASSERT(corlib, mono_get_corlib());
+
     printf("Cleaning up...\n");
     mono_unity_jit_cleanup(domain);
 
