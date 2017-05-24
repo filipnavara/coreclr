@@ -1611,10 +1611,11 @@ extern "C" MonoImage* mono_class_get_image(MonoClass *klass)
     return NULL;
 }
 
-extern "C" char mono_signature_is_instance(MonoMethodSignature *signature)
+extern "C" char mono_signature_is_instance(MonoMethodSignature *sig)
 {
-    ASSERT_NOT_IMPLEMENTED;
-    return 0;
+    MonoMethodSignature_clr* sig_clr = (MonoMethodSignature_clr*)sig;
+    MetaSig msig(sig_clr);
+    return msig.HasThis();
 }
 
 extern "C" MonoMethod* mono_method_get_last_managed()
