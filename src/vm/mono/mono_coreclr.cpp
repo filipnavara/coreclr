@@ -2097,7 +2097,7 @@ extern "C" MonoImage* mono_get_corlib()
     char buf[MAX_PATH] = { 0 };
     sprintf_s(buf, COUNTOF(buf), "%s/%s", s_AssemblyDir, "mscorlib.dll");
 
-    return (MonoImage*)mono_domain_assembly_open(nullptr, buf);
+    return (MonoImage*)mono_domain_assembly_open(g_RootDomain, buf);
 }
 
 extern "C" MonoClassField* mono_class_get_field_from_name(MonoClass *klass, const char *name)
