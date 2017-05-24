@@ -795,7 +795,7 @@ extern "C" void mono_image_close(MonoImage *image)
 
 extern "C" void mono_unity_socket_security_enabled_set(gboolean)
 {
-    ASSERT_NOT_IMPLEMENTED;
+    // NOP
 }
 
 //DO_API(void,mono_set_unhandled_exception_handler,(void* function))
@@ -1513,7 +1513,7 @@ extern "C" void mono_field_static_get_value(MonoVTable *vt, MonoClassField *fiel
 
 extern "C" void mono_unity_set_embeddinghostname(const char* name)
 {
-    ASSERT_NOT_IMPLEMENTED;
+    // NOP
 }
 
 extern "C" void mono_set_assemblies_path(const char* name)
