@@ -544,6 +544,20 @@ extern "C" MonoObject* mono_runtime_invoke(MonoMethod *method, void *obj, void *
         slotIndex++;
     }
 
+    PVOID pRetBufStackCopy = NULL;
+    auto retTH = methodSig.GetRetTypeHandleNT();
+    CorElementType retType = retTH.GetInternalCorElementType();
+
+    auto hasReturnBufferArg = argIt.HasRetBuffArg();
+    if (hasReturnBufferArg)
+    {
+        SIZE_T sz = retTH.GetMethodTable()->GetNumInstanceFieldBytes();
+        pRetBufStackCopy = _alloca(sz);
+        memset(pRetBufStackCopy, 0, sz);
+        argslots[slotIndex] = PtrToArgSlot(pRetBufStackCopy);
+        slotIndex++;
+    }
+
     for (DWORD argIndex = 0; argIndex < numArgs; argIndex++, slotIndex++)
     {
         int ofs = argIt.GetNextOffset();
@@ -595,6 +609,9 @@ extern "C" MonoObject* mono_runtime_invoke(MonoMethod *method, void *obj, void *
                 break;
             }
             break;
+        case ELEMENT_TYPE_PTR:
+            argslots[slotIndex] = PtrToArgSlot(params[argIndex]);
+            break;
         case ELEMENT_TYPE_STRING:
         case ELEMENT_TYPE_OBJECT:
         case ELEMENT_TYPE_CLASS:
@@ -621,9 +638,6 @@ extern "C" MonoObject* mono_runtime_invoke(MonoMethod *method, void *obj, void *
         return nullptr;
     }
 
-    MethodTable* pMT = NULL;
-    auto retTH = methodSig.GetRetTypeHandleNT();
-    CorElementType retType = retTH.GetInternalCorElementType();
     // Check reflectioninvocation.cpp
     // TODO: Handle 
     switch (retType)
@@ -643,7 +657,15 @@ extern "C" MonoObject* mono_runtime_invoke(MonoMethod *method, void *obj, void *
         case ELEMENT_TYPE_R8:           // double
         case ELEMENT_TYPE_I:
         case ELEMENT_TYPE_U:
-            return (MonoObject*)OBJECTREFToObject(retTH.GetMethodTable()->Box(&result));
+        case ELEMENT_TYPE_PTR:
+            if (hasReturnBufferArg)
+            {
+                return (MonoObject*)OBJECTREFToObject(retTH.GetMethodTable()->Box(pRetBufStackCopy));
+            }
+            else 
+            {
+                return (MonoObject*)OBJECTREFToObject(retTH.GetMethodTable()->Box(&result));
+            }
             break;
         case ELEMENT_TYPE_STRING:
         case ELEMENT_TYPE_OBJECT:

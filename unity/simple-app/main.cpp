@@ -147,6 +147,15 @@ void InternalMethod()
     printf("Internal method was called\n");
 }
 
+typedef struct {
+    DWORD Data1;
+    WORD  Data2;
+    WORD  Data3;
+    BYTE  Data4[8];
+} MYGUID;
+
+
+
 int main(int argc, char * argv[])
 {
     if(argc < 2)
@@ -245,6 +254,15 @@ int main(int argc, char * argv[])
         auto resultObj = mono_runtime_invoke(method, testobj, params, nullptr);
         int result = *(int*)mono_object_unbox(resultObj);
         assert(result == param1 + 1); // TODO: testobj constructor is not called
+    }
+
+    // Test calling  method instance
+    {
+        GET_AND_ASSERT(method, mono_class_get_method_from_name(klass, "TestGuid", 0));
+        auto resultObj = mono_runtime_invoke(method, testobj, nullptr, nullptr);
+        MYGUID result = *(MYGUID*)mono_object_unbox(resultObj);
+        assert(result.Data1 == 0x81a130d2);
+        //assert(result == param1 + 1); // TODO: testobj constructor is not called
     }
 
     GET_AND_ASSERT(klassClassWithAttribute, mono_class_from_name(image, "coreclrtest", "ClassWithAttribute"));

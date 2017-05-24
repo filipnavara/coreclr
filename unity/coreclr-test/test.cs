@@ -79,5 +79,10 @@ namespace coreclrtest
         {
             return x + a + 1;
         }
+
+        public Guid TestGuid()
+        {
+            return Guid.Parse("81a130d2-502f-4cf1-a376-63edeb000e9f");
+        }
     }
 }
