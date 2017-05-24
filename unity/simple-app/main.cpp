@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
+#include <assert.h>
 
 #ifndef WIN32
 #include <unistd.h>
@@ -116,7 +117,7 @@ void* get_method(const char* functionName)
     if(what == nullptr) \
     { \
         printf(" failed!\n"); \
-        return 1; \
+        assert(false && "Failing computing "#what); \
     } \
     printf(" ok\n");
 
@@ -126,7 +127,7 @@ void* get_method(const char* functionName)
     if(what == nullptr) \
     { \
         printf(" failed!\n"); \
-        return 1; \
+        assert(false && "Failing computing "#what); \
     } \
     printf(" ok\n");
 
@@ -182,10 +183,24 @@ int main(int argc, char * argv[])
     GET_AND_ASSERT(klass, mono_class_from_name(image, "coreclrtest", "test"));
     GET_AND_ASSERT(method, mono_class_get_method_from_name (klass, "GetNumber", 0));
     
-    GET_AND_ASSERT(returnValue, mono_runtime_invoke(method, nullptr, nullptr, nullptr));
+    //GET_AND_ASSERT(returnValue, mono_runtime_invoke(method, nullptr, nullptr, nullptr));
+    auto returnValue = mono_runtime_invoke(method, nullptr, nullptr, nullptr);
+    {
+        int int_result = *(int*)mono_object_unbox(returnValue);
+        printf("Invoke result: %i\n", int_result);
+    }
 
-    int int_result = *(int*)mono_object_unbox (returnValue);
-    printf("Invoke result: %i\n", int_result);
+    {
+        GET_AND_ASSERT(method_StaticTestArg1_int, mono_class_get_method_from_name(klass, "StaticTestArg1_int", 1));
+        int param1 = 10;
+        void* params[2] = { &param1, nullptr };
+        auto resultObj = mono_runtime_invoke(method_StaticTestArg1_int, nullptr, params, nullptr);
+        int result = *(int*)mono_object_unbox(resultObj);
+        assert(result == param1 + 1);
+    }
+
+    // Create Object
+    GET_AND_ASSERT(testobj, mono_object_new(domain, klass));
 
     GET_AND_ASSERT(klassClassWithAttribute, mono_class_from_name(image, "coreclrtest", "ClassWithAttribute"));
     GET_AND_ASSERT(klassTestAttribute, mono_class_from_name(image, "coreclrtest", "TestAttribute"));

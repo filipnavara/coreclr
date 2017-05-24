@@ -523,28 +523,92 @@ extern "C" void mono_runtime_object_init(MonoObject *this_obj)
 
 extern "C" MonoObject* mono_runtime_invoke(MonoMethod *method, void *obj, void **params, MonoException **exc)
 {
-    // TODO: Add contract
-    MONO_ASSERTE(params == NULL);  // TODO: Handle params to ARG_SLOT
-
     MethodTable* ptable;
-
-    auto thread = GetThread();
-    if (thread == nullptr)
-    {
-        thread = SetupThreadNoThrow();
-    }
-
     OBJECTREF objref = ObjectToOBJECTREF((Object*)obj);
+    GCX_COOP();
 
+    auto method_clr = (MonoMethod_clr*)method;
+
+    MetaSig     methodSig(method_clr);
+    DWORD numArgs = methodSig.NumFixedArgs();
+    ArgIterator argIt(&methodSig);
+
+    const int MAX_ARG_SLOT = 128;
+    ARG_SLOT argslots[MAX_ARG_SLOT];
+
+    for (DWORD argIndex = 0; argIndex < numArgs; argIndex++)
     {
-        GCX_COOP();
+        int ofs = argIt.GetNextOffset();
+        _ASSERTE(ofs != TransitionBlock::InvalidOffset);
+        auto stackSize = argIt.GetArgSize();
 
-        MethodDescCallSite invoker((MonoMethod_clr*)method, &objref);
+        // The following code is trying to follow the code
+        // inside MethodDescCallSite::CallTargetWorker
+        switch (stackSize)
+        {
+        case 1:
+        case 2:
+        case 4:
+            argslots[argIndex] = *(INT32*)params[argIndex];
+            break;
 
-        // TODO: Convert params to ARG_SLOT
-        OBJECTREF result = invoker.Call_RetOBJECTREF((ARG_SLOT*)NULL);
-        return (MonoObject*)OBJECTREFToObject(result);
+        case 8:
+            argslots[argIndex] = *(INT64*)params[argIndex];
+            break;
+
+        default:
+            if (stackSize > sizeof(ARG_SLOT))
+            {
+                argslots[argIndex] = PtrToArgSlot(params[argIndex]);
+            }
+            else
+            {
+                CopyMemory(&argslots[argIndex], params[argIndex], stackSize);
+            }
+            break;
+        }
     }
+
+    MethodDescCallSite invoker((MonoMethod_clr*)method, &objref);
+
+    // TODO: Convert params to ARG_SLOT
+    ARG_SLOT result = invoker.Call_RetArgSlot(argslots);
+
+    methodSig.Reset();
+    if (methodSig.IsReturnTypeVoid())
+    {
+        return nullptr;
+    }
+
+    MethodTable* pMT = NULL;
+    auto retTH = methodSig.GetRetTypeHandleNT();
+    CorElementType retType = retTH.GetInternalCorElementType();
+    // Check reflectioninvocation.cpp
+    // TODO: Handle 
+    switch (retType)
+    {
+        case ELEMENT_TYPE_VALUETYPE:
+        case ELEMENT_TYPE_I1:
+        case ELEMENT_TYPE_U1:
+        case ELEMENT_TYPE_I2:
+        case ELEMENT_TYPE_U2:
+        case ELEMENT_TYPE_I4:
+        case ELEMENT_TYPE_U4:
+        case ELEMENT_TYPE_I8:
+        case ELEMENT_TYPE_U8:
+        case ELEMENT_TYPE_R4:
+        case ELEMENT_TYPE_R8:
+            return (MonoObject*)OBJECTREFToObject(retTH.GetMethodTable()->Box(&result));
+            break;
+        case ELEMENT_TYPE_STRING:
+        case ELEMENT_TYPE_OBJECT:
+            return (MonoObject*)OBJECTREFToObject(ArgSlotToObj(result));
+            break;
+        default:
+            assert(false && "This retType is not supported");
+            break;
+    }
+    return nullptr;
 }
 
 extern "C" void mono_field_set_value(MonoObject *obj, MonoClassField *field, void *value)
@@ -1920,8 +1984,10 @@ extern "C" MonoMethod* mono_class_get_method_from_name(MonoClass *klass, const c
         // TODO: check how to handle properly UTF8 comparison
         if (strcmp(method->GetName(), name) == 0)
         {
-            auto methodInst = method->GetMethodInstantiation();
-            if (methodInst.GetNumArgs() == param_count)
+            MetaSig     methodSig(method);
+
+            DWORD numArgs = methodSig.NumFixedArgs();
+            if (numArgs == param_count)
             {
                 return (MonoMethod*)method;
             }
