@@ -1302,7 +1302,7 @@ extern "C" gint32 mono_class_array_element_size(MonoClass *ac)
     auto ac_clr = (MonoClass_clr*)ac;
 
     // TODO: Is it really the method to use?
-    size_t s = ac_clr->GetBaseSize();
+    DWORD s = ac_clr->GetBaseSize();
     return s;
 }
 
