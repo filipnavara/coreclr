@@ -1455,8 +1455,24 @@ extern "C" MonoMethodSignature* mono_method_signature(MonoMethod *method)
 
 extern "C" MonoType* mono_signature_get_params(MonoMethodSignature *sig, gpointer *iter)
 {
-    ASSERT_NOT_IMPLEMENTED;
-    return NULL;
+    MonoMethodSignature_clr* signature = (MonoMethodSignature_clr*)sig;
+    MetaSig* metasig = (MetaSig*)*iter;
+    if (metasig == NULL)
+    {
+        metasig = new MetaSig(signature);
+        *iter = metasig;
+    }
+
+    CorElementType argType = metasig->NextArg();
+    if (argType == ELEMENT_TYPE_END)
+    {
+        delete metasig;
+        *iter = NULL;
+        return NULL;
+    }
+
+    TypeHandle typeHandle = metasig->GetLastTypeHandleThrowing();
+    return (MonoType*)typeHandle.AsPtr();
 }
 
 extern "C" MonoType* mono_signature_get_return_type(MonoMethodSignature *sig)
