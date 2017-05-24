@@ -792,7 +792,7 @@ extern "C" void mono_assembly_foreach(GFunc func, gpointer user_data)
 
 extern "C" void mono_image_close(MonoImage *image)
 {
-    ASSERT_NOT_IMPLEMENTED;
+    // NOP
 }
 
 extern "C" void mono_unity_socket_security_enabled_set(gboolean)
