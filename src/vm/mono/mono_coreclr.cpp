@@ -24,6 +24,7 @@ EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 
 char s_AssemblyDir[MAX_PATH] = { 0 };
 char s_EtcDir[MAX_PATH] = { 0 };
+char s_AssemblyPaths[4096] = { 0 };
 
 // Import this function manually as it is not defined in a header
 extern "C" HRESULT  GetCLRRuntimeHost(REFIID riid, IUnknown **ppUnk);
@@ -302,8 +303,16 @@ extern "C" MonoDomain* mono_jit_init_version(const char *file, const char* runti
         wchar_t etcPath[MAX_PATH] = { 0 };
         Wsz_mbstowcs(etcPath, s_EtcDir, MAX_PATH);
 
+        wchar_t assemblyPaths[4096] = { 0 };
+        Wsz_mbstowcs(assemblyPaths, s_AssemblyPaths, 4096);
+
         SString tpa;
         list_tpa(appPath, tpa);
+
+        SString appPaths;
+        appPaths += appPath;
+        appPaths += SPLITTER;
+        appPaths += assemblyPaths;
 
         SString appNiPaths;
         appNiPaths += appPath;
@@ -317,7 +326,7 @@ extern "C" MonoDomain* mono_jit_init_version(const char *file, const char* runti
 
         const wchar_t *property_values[] = {
                   tpa.GetUnicode(),
-                  appPath,
+                  appPaths,
                   appNiPaths.GetUnicode(),
                   nativeDllSearchDirs.GetUnicode()
         };
@@ -1511,7 +1520,7 @@ extern "C" void mono_unity_set_embeddinghostname(const char* name)
 
 extern "C" void mono_set_assemblies_path(const char* name)
 {
-    ASSERT_NOT_IMPLEMENTED;
+    strcpy(s_AssemblyPaths, name);
 }
 
 extern "C" guint32 mono_gchandle_new(MonoObject *obj, gboolean pinned)
