@@ -26,7 +26,7 @@ namespace MonoProxyCodeGen
             // Defines the platform
             //var platform = "PLATFORM_OSX";
             var platform = "PLATFORM_WIN";
-            const bool generateProxy = false;
+            const bool generateProxy = true;
             var fileOutput = generateProxy ? "../../../mono-proxy/monoproxy.cpp" : "monoproxy_decl.cpp";
 
             var writer = new StreamWriter(Path.Combine(Environment.CurrentDirectory, fileOutput));
