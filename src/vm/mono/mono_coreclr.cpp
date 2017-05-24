@@ -6,6 +6,7 @@
 #include "threads.h"
 #include "ecall.h"
 #include "stringliteralmap.h"
+#include "assemblynative.hpp"
 
 #ifdef FEATURE_PAL
 #include "pal.h"
@@ -407,7 +408,6 @@ MonoClass * mono_class_from_name(MonoImage *image, const char* name_space, const
         PRECONDITION(name != nullptr);
     }
     CONTRACTL_END;
-
     auto assembly = (MonoAssembly_clr*)image;
     DomainAssembly* domainAssembly = assembly->GetDomainAssembly();
 
@@ -459,7 +459,6 @@ extern "C" MonoAssembly * mono_domain_assembly_open(MonoDomain *domain, const ch
 
     SString assemblyPath(SString::Utf8, name);
     auto domain_clr = (MonoDomain_clr*)domain;
-
     auto assembly = AssemblySpec::LoadAssembly(assemblyPath.GetUnicode());
     assembly->EnsureActive();
     //auto domainAssembly = assembly->GetDomainAssembly((MonoDomain_clr*)domain);
@@ -1513,8 +1512,9 @@ extern "C" MonoImage* mono_image_open_from_data_full(const void *data, guint32 d
 
 extern "C" MonoImage* mono_image_open_from_data_with_name(char *data, guint32 data_len, gboolean need_copy, int *status, gboolean refonly, const char *name)
 {
-    ASSERT_NOT_IMPLEMENTED;
-    return NULL;
+    // TODO: not sure this is the correct way
+    MonoImage_clr* assembly = AssemblyNative::LoadFromBuffer(FALSE, (const BYTE*)data, data_len, nullptr, 0, nullptr, nullptr, kCurrentAppDomain);
+    return (MonoImage*)assembly;
 }
 
 extern "C" MonoAssembly * mono_assembly_load_from(MonoImage *image, const char*fname, int *status)
@@ -1796,8 +1796,8 @@ extern "C" const char* mono_image_get_filename(MonoImage *image)
 
 extern "C" MonoAssembly* mono_assembly_load_from_full(MonoImage *image, const char *fname, int *status, gboolean refonly)
 {
-    ASSERT_NOT_IMPLEMENTED;
-    return NULL;
+    // TODO: As we are making MonoImage == MonoAssembly, return it as-is
+    return (MonoAssembly*)image;
 }
 
 extern "C" MonoClass* mono_class_get_interfaces(MonoClass* klass, gpointer *iter)

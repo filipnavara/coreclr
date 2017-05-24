@@ -24,7 +24,7 @@ class AssemblyNative
     friend class BaseDomain;
     friend class DomainAssembly;
 
-private:
+public:
     static Assembly* GetPostPolicyAssembly(PEAssembly *pFile,
                                            BOOL fForIntrospection,
                                            AssemblyLoadSecurity *pLoadSecurity,
