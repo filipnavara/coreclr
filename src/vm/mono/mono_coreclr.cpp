@@ -1403,13 +1403,24 @@ extern "C" char* mono_stringify_assembly_name(MonoAssemblyName *aname)
 
 extern "C" int mono_assembly_name_parse(const char* name, MonoAssemblyName *assembly)
 {
-    ASSERT_NOT_IMPLEMENTED;
-    return 0;
+    assembly->name = name;
+    return 1;
 }
 
 extern "C" MonoAssembly* mono_assembly_loaded(MonoAssemblyName *aname)
 {
-    ASSERT_NOT_IMPLEMENTED;
+    AppDomain::AssemblyIterator assemblyIterator = SystemDomain::GetCurrentDomain()->IterateAssembliesEx((AssemblyIterationFlags)(
+            kIncludeExecution | kIncludeLoaded | kIncludeCollected));
+
+    CollectibleAssemblyHolder<DomainAssembly *> pDomainAssembly;
+    while (assemblyIterator.Next(pDomainAssembly.This()))
+    {
+        auto simpleName = pDomainAssembly->GetSimpleName();
+        if (strcmp(simpleName, aname->name) == 0)
+        {
+            return (MonoAssembly*)pDomainAssembly->GetAssembly();
+        }
+    }
     return NULL;
 }
 

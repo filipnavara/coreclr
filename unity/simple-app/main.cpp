@@ -192,17 +192,27 @@ int main(int argc, char * argv[])
     GET_AND_ASSERT(klassAnotherTestAttribute, mono_class_from_name(image, "coreclrtest", "AnotherTestAttribute"));
     GET_AND_ASSERT(customAttrInfo, mono_custom_attrs_from_class(klassClassWithAttribute));
 
-    printf("class ClassWithAttribute with attribute TestAttribute: %i\n", mono_custom_attrs_has_attr(customAttrInfo, klassTestAttribute));
-    printf("class ClassWithAttribute with attribute AnotherTestAttribute: %i\n", mono_custom_attrs_has_attr(customAttrInfo, klassAnotherTestAttribute));
+    printf("class ClassWithAttribute with attribute TestAttribute (1): %i\n", mono_custom_attrs_has_attr(customAttrInfo, klassTestAttribute));
+    printf("class ClassWithAttribute with attribute AnotherTestAttribute (0): %i\n", mono_custom_attrs_has_attr(customAttrInfo, klassAnotherTestAttribute));
 
     GET_AND_ASSERT(methodWithAttribute, mono_class_get_method_from_name (klass, "MethodWithAttribute", 0));
     GET_AND_ASSERT(methodCustomAttrInfo, mono_custom_attrs_from_class(klassClassWithAttribute));
 
-    printf("class MethodWithAttribute with attribute TestAttribute: %i\n", mono_custom_attrs_has_attr(methodCustomAttrInfo, klassTestAttribute));
-    printf("class MethodWithAttribute with attribute AnotherTestAttribute: %i\n", mono_custom_attrs_has_attr(methodCustomAttrInfo, klassAnotherTestAttribute));
- 
+    printf("class MethodWithAttribute with attribute TestAttribute (1): %i\n", mono_custom_attrs_has_attr(methodCustomAttrInfo, klassTestAttribute));
+    printf("class MethodWithAttribute with attribute AnotherTestAttribute (0): %i\n", mono_custom_attrs_has_attr(methodCustomAttrInfo, klassAnotherTestAttribute));
+    
+    printf("class test is sub class of ClassWithAttribute (1): %i\n", mono_class_is_subclass_of(klass, klassClassWithAttribute, 1));
+    printf("class test is sub class of TestAttribute (0): %i\n", mono_class_is_subclass_of(klass, klassTestAttribute, 1));
+
     mono_custom_attrs_free(customAttrInfo);
     mono_custom_attrs_free(methodCustomAttrInfo);
+
+    MonoAssemblyName assemblyName;
+    mono_assembly_name_parse("coreclr-test", &assemblyName);
+
+    GET_AND_ASSERT(loadedAssembly, mono_assembly_loaded (&assemblyName));
+
+    printf("Assemblies should be the same (1): %i\n", loadedAssembly == assembly);
 
     printf("Cleaning up...\n");
     mono_unity_jit_cleanup(domain);

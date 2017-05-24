@@ -20,7 +20,7 @@ namespace coreclrtest
 
     }
 
-    class test
+    class test : ClassWithAttribute
     {
         [MethodImpl(MethodImplOptions.InternalCall)]
         private static extern void InternalMethod();
