@@ -308,6 +308,17 @@ int main(int argc, char * argv[])
         assert(param2 == testobj);
     }
 
+	// test mono_object_isinst
+	{
+		GET_AND_ASSERT(isinst, mono_object_isinst(testobj, klass));
+		GET_AND_ASSERT(klassClassWithAttribute, mono_class_from_name(image, "coreclrtest", "ClassWithAttribute"));
+		isinst = mono_object_isinst(testobj, klassClassWithAttribute);
+		assert(isinst != NULL);
+		GET_AND_ASSERT(classWithGenericField, mono_class_from_name(image, "coreclrtest", "HasGenericField"));
+		isinst = mono_object_isinst(testobj, classWithGenericField);
+		assert(isinst == NULL);
+	}
+
     // Test calling allocation string and passing to a parameter method retuning the length of it
     {
         auto str = mono_string_new_wrapper("yoyo");
