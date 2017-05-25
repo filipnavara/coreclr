@@ -17,6 +17,7 @@ endif()
 add_definitions(-DENABLE_MONO)
 add_definitions(-DPLATFORM_STANDALONE)
 add_definitions(-DPLATFORM_WIN)
+add_definitions(-DCORECLR)
 add_definitions(-DENABLE_MONO_MEMORY_PROFILER)
 include_directories(${UNITY_ROOT}/Runtime/Mono)
 

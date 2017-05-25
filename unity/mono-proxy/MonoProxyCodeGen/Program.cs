@@ -67,7 +67,7 @@ namespace MonoProxyCodeGen
 
                 var returnType = entries[0].Trim();
                 var functionName = entries[1].Trim();
-                var rawParameters = entries[2].Trim().TrimStart('(').TrimEnd(')').Split(splitParams, StringSplitOptions.RemoveEmptyEntries);
+                var rawParameters = entries[2].Trim().TrimStart('(').TrimEnd(')',';').Split(splitParams, StringSplitOptions.RemoveEmptyEntries);
 
                 var parameters = new Parameter[rawParameters.Length];
                 var paramRedirect = new StringBuilder();
