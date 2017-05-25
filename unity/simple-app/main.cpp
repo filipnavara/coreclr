@@ -506,6 +506,12 @@ int main(int argc, char * argv[])
 		assert(strcmp(parentClassName, "ClassWithAttribute") == 0);
 	}
 
+	{
+		GET_AND_ASSERT(genericClass, mono_class_from_name(image, "coreclrtest", "GenericClass`1"));
+		assert(mono_class_is_generic(genericClass) == TRUE);
+		assert(mono_class_is_inflated(genericClass) == TRUE);
+	}
+
     printf("Cleaning up...\n");
     mono_unity_jit_cleanup(domain);
 
