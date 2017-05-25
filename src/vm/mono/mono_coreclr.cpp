@@ -78,12 +78,12 @@ extern "C" EXPORT_API void mono_test_export()
  
  extern "C" gboolean mono_gc_objectref_valid(const MonoObjectRef* objectref)
  {
-     return Thread::IsObjRefValid((const OBJECTREF*)objectref);
+     return Thread::IsObjRefValid((const OBJECTREF*)objectref) ? TRUE : FALSE;
  }
  
  extern "C" gboolean mono_gc_is_heap_pointer(void* ptr)
  {
-     return ((IGCHeap*)GCHeapUtilities::GetGCHeap())->IsHeapPointer(ptr);
+     return ((IGCHeap*)GCHeapUtilities::GetGCHeap())->IsHeapPointer(ptr) ? TRUE : FALSE;
  }
  
  extern "C" void mono_gc_objectref_assign(const MonoObjectRef* objectref)
@@ -107,7 +107,7 @@ extern "C" void mono_gc_enable_stress_heap()
 extern "C" gboolean mono_gc_preemptive(gboolean enable)
 {
     Thread* thread = GetThread();
-    gboolean previousState = thread->PreemptiveGCDisabled();
+    gboolean previousState = thread->PreemptiveGCDisabled() ? TRUE : FALSE;
     if (enable)
     {
         if (previousState)
@@ -1196,7 +1196,7 @@ extern "C" MonoObject* mono_object_isinst(MonoObject *obj, MonoClass* klass)
 extern "C" gboolean mono_class_is_valuetype(MonoClass *klass)
 {
     MonoClass_clr* clazz = (MonoClass_clr*)klass;
-    return (gboolean)clazz->IsValueType();
+    return (gboolean)clazz->IsValueType()? TRUE : FALSE;
 }
 
 extern "C" guint32 mono_signature_get_param_count(MonoMethodSignature *sig)
@@ -1445,7 +1445,7 @@ extern "C" gboolean mono_class_is_generic(MonoClass* klass)
         PRECONDITION(klass != nullptr);
     } CONTRACTL_END;
     MonoClass_clr* klass_clr = (MonoClass_clr*)klass;
-    return klass_clr->IsGenericTypeDefinition();
+    return klass_clr->IsGenericTypeDefinition() ? TRUE : FALSE;
 }
 
 extern "C" gboolean mono_class_is_inflated(MonoClass* klass)
@@ -1986,7 +1986,7 @@ extern "C" MonoAssembly* mono_assembly_open(const char *filename, int *status)
 
 extern "C" gboolean mono_class_is_enum(MonoClass *klass)
 {
-    return (gboolean)reinterpret_cast<MonoClass_clr*>(klass)->IsEnum();
+    return (gboolean)reinterpret_cast<MonoClass_clr*>(klass)->IsEnum() ? TRUE : FALSE;
 }
 
 extern "C" MonoType* mono_class_enum_basetype(MonoClass *klass)
@@ -2118,7 +2118,7 @@ extern "C" gboolean mono_unity_class_is_interface(MonoClass* klass)
     }
     CONTRACTL_END;
 
-    return reinterpret_cast<MonoClass_clr*>(klass)->IsInterface();
+    return reinterpret_cast<MonoClass_clr*>(klass)->IsInterface() ? TRUE : FALSE;
 }
 
 extern "C" gboolean mono_unity_class_is_abstract(MonoClass* klass)
@@ -2131,7 +2131,7 @@ extern "C" gboolean mono_unity_class_is_abstract(MonoClass* klass)
     }
     CONTRACTL_END;
 
-    return reinterpret_cast<MonoClass_clr*>(klass)->IsAbstract();
+    return reinterpret_cast<MonoClass_clr*>(klass)->IsAbstract() ? TRUE : FALSE;
 }
 
 extern "C" int mono_array_element_size(MonoClass* classOfArray)
@@ -2282,7 +2282,7 @@ extern "C" gboolean mono_custom_attrs_has_attr(MonoCustomAttrInfo *ainfo, MonoCl
     char buf[512] = {0};
     sprintf_s(buf, COUNTOF(buf), "%s.%s", namespaze, name);
 
-    return S_OK == clrClass->GetMDImport()->GetCustomAttributeByName(clrClass->GetCl(), buf, NULL, NULL);
+    return S_OK == clrClass->GetMDImport()->GetCustomAttributeByName(clrClass->GetCl(), buf, NULL, NULL) ? TRUE : FALSE;
 }
 
 extern "C" MonoCustomAttrInfo* mono_custom_attrs_from_field(MonoClass *klass, MonoClassField *field)
