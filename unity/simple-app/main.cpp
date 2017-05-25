@@ -563,6 +563,39 @@ int main(int argc, char * argv[])
         } while (maxgen >= 0);
     }
 
+    // Test mono_field_get_offset
+    {
+        GET_AND_ASSERT(classWithFields, mono_class_from_name(image, "coreclrtest", "TestWithField"));
+        GET_AND_ASSERT(field0, mono_class_get_field_from_name(classWithFields, "field0"));
+        GET_AND_ASSERT(field1, mono_class_get_field_from_name(classWithFields, "field1"));
+        auto field0_offset = mono_field_get_offset(field0);
+        auto field1_offset = mono_field_get_offset(field1);
+
+        GET_AND_ASSERT(obj, mono_object_new(domain, classWithFields));
+
+        GET_AND_ASSERT(classObject, mono_object_get_class(obj));
+
+#ifdef USE_CORECLR
+        assert(field0_offset == sizeof(void*) + 0);
+        assert(field1_offset == sizeof(void*) + sizeof(int));
+#else
+        assert(field0_offset == sizeof(void*) * 2 + 0);
+        assert(field1_offset == sizeof(void*) * 2 + sizeof(int));
+#endif
+
+        ((int*)((char*)obj + field0_offset))[0] = 15;
+        ((int*)((char*)obj + field1_offset))[0] = 20;
+
+        GET_AND_ASSERT(methodfield0, mono_class_get_method_from_name(classWithFields, "GetField0", 0));
+        GET_AND_ASSERT(methodfield1, mono_class_get_method_from_name(classWithFields, "GetField1", 0));
+        auto result0Obj = mono_runtime_invoke(methodfield0, obj, nullptr, nullptr);
+        int field0Value = *(int*)mono_object_unbox(result0Obj);
+        assert(field0Value == 15);
+
+        auto result1Obj = mono_runtime_invoke(methodfield1, obj, nullptr, nullptr);
+        int field1Value = *(int*)mono_object_unbox(result1Obj);
+        assert(field1Value == 20);
+    }
 
 	{
 		GET_AND_ASSERT(method, mono_class_get_method_from_name(klass, "TestStringIn", 1));

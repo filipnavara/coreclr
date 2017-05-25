@@ -28,6 +28,22 @@ namespace coreclrtest
         }
     }
 
+    class TestWithField
+    {
+        int field0;
+        int field1;
+
+        public int GetField0()
+        {
+            return field0;
+        }
+
+        public int GetField1()
+        {
+            return field1;
+        }
+    }
+
     class test : ClassWithAttribute
     {
         private int x = 0;

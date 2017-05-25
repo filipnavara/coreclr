@@ -719,9 +719,20 @@ extern "C" void mono_field_get_value(MonoObject *obj, MonoClassField *field, voi
 
 extern "C" int mono_field_get_offset(MonoClassField *field)
 {
-    return ((MonoClassField_clr*)field)->GetOffset();
-}
+    auto field_clr = (MonoClassField_clr*)field;
+    if (field_clr->IsStatic())
+    {
+        return 0;
+    }
 
+    auto result = field_clr->GetOffset();
+    if (!field_clr->GetApproxEnclosingMethodTable()->IsValueType())
+    {
+        result += sizeof(Object);
+    }
+
+    return result;
+}
 
 extern "C" MonoClassField* mono_class_get_fields(MonoClass* klass, gpointer *iter)
 {
