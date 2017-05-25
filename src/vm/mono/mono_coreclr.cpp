@@ -1616,7 +1616,7 @@ extern "C" MonoType* mono_signature_get_params(MonoMethodSignature *sig, gpointe
     if (argType == ELEMENT_TYPE_END)
     {
         delete metasig;
-        *iter = NULL;
+        //*iter = NULL; // match mono behavior
         return NULL;
     }
 

@@ -612,9 +612,9 @@ int main(int argc, char * argv[])
 		assert(1 == param_count);
 		gpointer iter = NULL;
 		GET_AND_ASSERT(paramType, mono_signature_get_params(signature, &iter));
-		assert(NULL != iter);
-		paramType = mono_signature_get_params(signature, &iter);
-		assert(NULL == iter);
+        assert(NULL != iter); // match mono behavior
+        paramType = mono_signature_get_params(signature, &iter);
+		assert(NULL != iter); // match mono behavior
 		assert(NULL == paramType);
 		GET_AND_ASSERT(retType, mono_signature_get_return_type(signature));
 		gboolean isInst = mono_signature_is_instance(signature);
@@ -628,14 +628,14 @@ int main(int argc, char * argv[])
 		assert(2 == param_count);
 		iter = NULL;
 		paramType = mono_signature_get_params(signature, &iter);
-		assert(NULL != iter);
-		assert(NULL != paramType);
+        assert(NULL != iter); // match mono behavior
+        assert(NULL != paramType);
 		paramType = mono_signature_get_params(signature, &iter);
-		assert(NULL != iter);
-		assert(NULL != paramType);
+        assert(NULL != iter); // match mono behavior
+        assert(NULL != paramType);
 		paramType = mono_signature_get_params(signature, &iter);
-		assert(NULL == iter);
-		assert(NULL == paramType);
+        assert(NULL != iter); // match mono behavior
+        assert(NULL == paramType);
 		retType = mono_signature_get_return_type(signature);
 		assert(NULL != retType);
 		isInst = mono_signature_is_instance(signature);
@@ -649,11 +649,11 @@ int main(int argc, char * argv[])
 		assert(1 == param_count);
 		iter = NULL;
 		paramType = mono_signature_get_params(signature, &iter);
-		assert(NULL != iter);
-		assert(NULL != paramType);
+        assert(NULL != iter); // match mono behavior
+        assert(NULL != paramType);
 		paramType = mono_signature_get_params(signature, &iter);
-		assert(NULL == iter);
-		assert(NULL == paramType);
+        assert(NULL != iter); // match mono behavior
+        assert(NULL == paramType);
 		retType = mono_signature_get_return_type(signature);
 		assert(NULL != retType);
 		isInst = mono_signature_is_instance(signature);
