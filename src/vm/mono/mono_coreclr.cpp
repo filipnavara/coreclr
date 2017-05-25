@@ -619,7 +619,7 @@ extern "C" MonoObject* mono_runtime_invoke(MonoMethod *method, void *obj, void *
             argslots[slotIndex] = PtrToArgSlot(params[argIndex]);
             break;
         case ELEMENT_TYPE_PTR:
-            argslots[slotIndex] = PtrToArgSlot(*(void**)params[argIndex]);
+            argslots[slotIndex] = PtrToArgSlot(params[argIndex]);
             break;
         case ELEMENT_TYPE_STRING:
         case ELEMENT_TYPE_OBJECT:

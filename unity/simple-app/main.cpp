@@ -291,7 +291,7 @@ int main(int argc, char * argv[])
     {
         GET_AND_ASSERT(method, mono_class_get_method_from_name(klass, "TestPtr", 1));
         void* param1 = (void*)0x123456789FFFFLL;
-        void* params[1] = { &param1 };
+        void* params[1] = { param1 };
         auto resultObj = mono_runtime_invoke(method, testobj, params, nullptr);
         void* result = *(void**)mono_object_unbox(resultObj);
         assert(result == param1);
