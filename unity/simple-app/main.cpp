@@ -538,6 +538,8 @@ int main(int argc, char * argv[])
 		assert(NULL == iter);
 		assert(NULL == paramType);
 		GET_AND_ASSERT(retType, mono_signature_get_return_type(signature));
+		gboolean isInst = mono_signature_is_instance(signature);
+		assert(isInst);
 
 		method = mono_class_get_method_from_name(klass, "TestObjectOut", 2);
 		assert(NULL != method);
@@ -557,6 +559,26 @@ int main(int argc, char * argv[])
 		assert(NULL == paramType);
 		retType = mono_signature_get_return_type(signature);
 		assert(NULL != retType);
+		isInst = mono_signature_is_instance(signature);
+		assert(isInst);
+
+		method = mono_class_get_method_from_name(klass, "StaticTestArg1_int", 1);
+		assert(NULL != method);
+		signature = mono_method_signature(method);
+		assert(NULL != signature);
+		param_count = mono_signature_get_param_count(signature);
+		assert(1 == param_count);
+		iter = NULL;
+		paramType = mono_signature_get_params(signature, &iter);
+		assert(NULL != iter);
+		assert(NULL != paramType);
+		paramType = mono_signature_get_params(signature, &iter);
+		assert(NULL == iter);
+		assert(NULL == paramType);
+		retType = mono_signature_get_return_type(signature);
+		assert(NULL != retType);
+		isInst = mono_signature_is_instance(signature);
+		assert(0 == isInst);
 	}
 
     // test for mono_image_get_name
