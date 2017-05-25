@@ -25,6 +25,7 @@ MonoDomain* g_RootDomain;
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 
 CrstStatic g_gc_handles_lock;
+CrstStatic g_add_internal_lock;
 
 char s_AssemblyDir[MAX_PATH] = { 0 };
 char s_EtcDir[MAX_PATH] = { 0 };
@@ -198,7 +199,7 @@ extern "C" void mono_add_internal_call(const char *name, gconstpointer method)
 {
     assert(name != nullptr);
     assert(method != nullptr);
-
+    CrstHolder lock(&g_add_internal_lock);
     ECall::RegisterICall(name, (PCODE)method);
 }
 
@@ -238,6 +239,7 @@ void list_tpa(const wchar_t* searchPath, SString& tpa)
 extern "C" MonoDomain* mono_jit_init_version(const char *file, const char* runtime_version)
 {
     g_gc_handles_lock.Init(CrstMonoHandles);
+    g_add_internal_lock.Init(CrstMonoICalls);
 
     if (!g_CLRRuntimeHost)
     {

@@ -191,6 +191,8 @@ int main(int argc, char * argv[])
     GET_AND_ASSERT_MESSAGE(assembly, mono_domain_assembly_open (domain, dllPath.c_str()), "Opening assembly '%s': ", dllPath.c_str());
     
     ADD_INTERNAL_METHOD(InternalMethod, "coreclrtest.test");
+    // Double check that registering the same method is not crashing
+    ADD_INTERNAL_METHOD(InternalMethod, "coreclrtest.test");
 
     GET_AND_ASSERT(image, mono_assembly_get_image(assembly));
     GET_AND_ASSERT(klass, mono_class_from_name(image, "coreclrtest", "test"));

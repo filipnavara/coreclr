@@ -786,3 +786,6 @@ End
 
 Crst MonoHandles
 End
+
+Crst MonoICalls
+End

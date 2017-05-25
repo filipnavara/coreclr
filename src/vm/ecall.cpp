@@ -270,27 +270,42 @@ bool IsICall(DWORD id)
     return (id >> 16) == 0xFFFF;
 }
 
+DWORD GetIndexICall(DWORD id)
+{
+    assert(IsICall(id));
+    return id & 0xFFFF;
+}
+
 void ECall::RegisterICall(const char* fullMethodName, PCODE code)
 {
+    // CAUTION: THIS METHOD IS NOT THREADSAFE
+    // PROTECT IT IN THE CALLER
     SString* fullMethodNameUTF8 = new SString(SString::Utf8Literal, fullMethodName);
-    DWORD id;
+    
     auto result = g_ICallToId.LookupPtr(*fullMethodNameUTF8);
-    assert(!result);
-    auto index = g_ICallIdToCode.size();
-    id = (DWORD)0xFFFF0000 | (DWORD)index;
-    g_ICallToId.AddOrReplace(ICallNameToId(fullMethodNameUTF8->GetUnicode(), id));
+    if (result)
+    {
+        auto indexICall = GetIndexICall(result->Id);
+        g_ICallIdToCode[indexICall]->m_pImplementation = (LPVOID)code;
+    }
+    else
+    {
+        auto index = g_ICallIdToCode.size();
+        auto id = (DWORD)0xFFFF0000 | (DWORD)g_ICallIdToCode.size();
 
-    auto eeFuncs = new ECFunc[2];
-    eeFuncs[0].m_dwFlags = 0xffffffffffff0000;
-    eeFuncs[0].m_pImplementation = (LPVOID)code;
-    eeFuncs[0].m_pMethodSig = nullptr;
-    eeFuncs[0].m_szMethodName = nullptr;
-    eeFuncs[1].m_dwFlags = 0xffffffffffff0000 | FCFuncFlag_EndOfArray;
-    eeFuncs[1].m_pImplementation = 0;
-    eeFuncs[1].m_pMethodSig = nullptr;
-    eeFuncs[1].m_szMethodName = nullptr;
+        g_ICallToId.AddOrReplace(ICallNameToId(fullMethodNameUTF8->GetUnicode(), id));
 
-    g_ICallIdToCode.push_back(&eeFuncs[0]);
+        auto eeFuncs = new ECFunc[2];
+        eeFuncs[0].m_dwFlags = 0xffffffffffff0000;
+        eeFuncs[0].m_pImplementation = (LPVOID)code;
+        eeFuncs[0].m_pMethodSig = nullptr;
+        eeFuncs[0].m_szMethodName = nullptr;
+        eeFuncs[1].m_dwFlags = 0xffffffffffff0000 | FCFuncFlag_EndOfArray;
+        eeFuncs[1].m_pImplementation = 0;
+        eeFuncs[1].m_pMethodSig = nullptr;
+        eeFuncs[1].m_szMethodName = nullptr;
+        g_ICallIdToCode.push_back(&eeFuncs[0]);
+    }
 }
 
 /*******************************************************************************/
@@ -336,7 +351,7 @@ static ECFunc *FindECFuncForID(DWORD id)
 
     if (IsICall(id))
     {
-        auto indexICall = id & 0xFFFF;
+        auto indexICall = GetIndexICall(id);
         return g_ICallIdToCode[indexICall];
     }
 
