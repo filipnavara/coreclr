@@ -4,6 +4,8 @@
 #include <iostream>
 #include <string>
 #include <assert.h>
+#include <list>
+#include <algorithm>
 
 #ifndef WIN32
 #include <unistd.h>
@@ -416,6 +418,24 @@ int main(int argc, char * argv[])
         clsname = mono_class_get_name(testObjClass);
         assert(clsname != nullptr);
         assert(strcmp(clsname, "test") == 0);
+    }
+
+    // test for mono_class_get_methods
+    {
+        GET_AND_ASSERT(classWithMethods, mono_class_from_name(image, "coreclrtest", "ClassWithAttribute"));
+
+        std::list<std::string> methods;
+
+        MonoMethod* method = nullptr;
+        void* iter;
+        while((method = mono_class_get_methods(classWithMethods, &iter)) != nullptr)
+        {
+            methods.push_back(mono_method_get_name(method));
+        }
+
+        assert(methods.size() == 7);
+        assert(std::find(methods.begin(), methods.end(), "Method1") != methods.end());
+        assert(std::find(methods.begin(), methods.end(), "Method2") != methods.end());
     }
 
     GET_AND_ASSERT(klassClassWithAttribute, mono_class_from_name(image, "coreclrtest", "ClassWithAttribute"));

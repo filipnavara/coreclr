@@ -17,7 +17,15 @@ namespace coreclrtest
     [TestAttribute]
     class ClassWithAttribute
     {
+        public void Method1()
+        {
 
+        }
+
+        private void Method2()
+        {
+            
+        }
     }
 
     class test : ClassWithAttribute

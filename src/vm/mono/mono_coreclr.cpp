@@ -858,6 +858,7 @@ extern "C" MonoMethod* mono_class_get_methods(MonoClass* klass, gpointer *iter)
     if (iterator == NULL)
     {
         iterator = new MethodTable::MethodIterator(klass_clr);
+        *iter = iterator;
     }
 
     if (!iterator->IsValid())
