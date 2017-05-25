@@ -106,5 +106,9 @@ namespace coreclrtest
         {
             return test == "yoyo";
         }
+
+        public class NestedType
+        {
+        }
     }
 }

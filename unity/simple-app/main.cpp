@@ -387,6 +387,15 @@ int main(int argc, char * argv[])
         assert(objectClass == objectClassNew);
     }
 
+    // Test for mono_class_from_name with nested types
+    // Test mono_class_get_nesting_type
+    {
+        GET_AND_ASSERT(nestedType, mono_class_from_name(image, "coreclrtest", "test/NestedType"));
+        GET_AND_ASSERT(klass_test, mono_class_get_nesting_type(nestedType));
+        assert(mono_class_get_nesting_type(klass) == nullptr);
+        assert(klass_test == klass);
+    }
+
     GET_AND_ASSERT(klassClassWithAttribute, mono_class_from_name(image, "coreclrtest", "ClassWithAttribute"));
     GET_AND_ASSERT(klassTestAttribute, mono_class_from_name(image, "coreclrtest", "TestAttribute"));
     GET_AND_ASSERT(klassAnotherTestAttribute, mono_class_from_name(image, "coreclrtest", "AnotherTestAttribute"));

@@ -418,7 +418,11 @@ MonoClass * mono_class_from_name(MonoImage *image, const char* name_space, const
     SString nameSpace(SString::Utf8, name_space);
     SString dot(SString::Utf8, ".");
     SString className(SString::Utf8, name);
-
+    SString::Iterator i = className.Begin();
+    while (className.Find(i, W('/')))
+    {
+        className.Replace(i, W('+'));
+    }
     SString fullTypeName(nameSpace, dot, className);
 
     TypeHandle retTypeHandle1 = TypeName::GetTypeFromAssembly(fullTypeName.GetUnicode(), assembly, FALSE);
@@ -719,6 +723,7 @@ extern "C" int mono_field_get_offset(MonoClassField *field)
 
 extern "C" MonoClassField* mono_class_get_fields(MonoClass* klass, gpointer *iter)
 {
+    ASSERT_NOT_IMPLEMENTED;
     CONTRACTL
     {
         NOTHROW;
@@ -1564,8 +1569,12 @@ extern "C" void mono_runtime_unhandled_exception_policy_set(MonoRuntimeUnhandled
 
 extern "C" MonoClass* mono_class_get_nesting_type(MonoClass *klass)
 {
-    MonoClass_clr* clazz = (MonoClass_clr*)klass;
-    MonoClass_clr* ret = ClassLoader::LoadTypeDefOrRefOrSpecThrowing(clazz->GetModule(), clazz->GetEnclosingCl(), NULL).AsMethodTable();
+    MonoClass_clr* klass_clr = (MonoClass_clr*)klass;
+    if (!klass_clr->GetClass()->IsNested())
+    {
+        return nullptr;
+    }
+    MonoClass_clr* ret = ClassLoader::LoadTypeDefOrRefOrSpecThrowing(klass_clr->GetModule(), klass_clr->GetEnclosingCl(), NULL).AsMethodTable();
     return (MonoClass*)ret;
 }
 
