@@ -510,10 +510,14 @@ int main(int argc, char * argv[])
 		GET_AND_ASSERT(genericClass, mono_class_from_name(image, "coreclrtest", "GenericClass`1"));
 		assert(mono_class_is_generic(genericClass) == TRUE);
 		assert(mono_class_is_inflated(genericClass) == TRUE);
+		gboolean isAbstract = mono_unity_class_is_abstract(genericClass);
+		assert(FALSE == isAbstract);
 	}
 
 	{
 		GET_AND_ASSERT(classWithGenericField, mono_class_from_name(image, "coreclrtest", "HasGenericField"));
+		gboolean isAbstract = mono_unity_class_is_abstract(classWithGenericField);
+		assert(FALSE != isAbstract);
 		GET_AND_ASSERT(genericField, mono_class_get_field_from_name(classWithGenericField, "genericField"));
 		GET_AND_ASSERT(fieldType, mono_field_get_type(genericField));
 		//GET_AND_ASSERT(genericClass, mono_type_get_class(fieldType));

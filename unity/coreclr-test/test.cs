@@ -128,7 +128,7 @@ namespace coreclrtest
     {
     }
 
-    public class HasGenericField
+    public abstract class HasGenericField
     {
         public GenericClass<string> genericField;
     }
