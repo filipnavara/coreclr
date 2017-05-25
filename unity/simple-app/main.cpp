@@ -341,6 +341,12 @@ int main(int argc, char * argv[])
         assert(handle1 != handle2);
     }
 
+    {
+        auto clsname = mono_class_get_name(klass);
+        assert(clsname != nullptr);
+        assert(strcmp(clsname, "test") == 0);
+    }
+
     GET_AND_ASSERT(klassClassWithAttribute, mono_class_from_name(image, "coreclrtest", "ClassWithAttribute"));
     GET_AND_ASSERT(klassTestAttribute, mono_class_from_name(image, "coreclrtest", "TestAttribute"));
     GET_AND_ASSERT(klassAnotherTestAttribute, mono_class_from_name(image, "coreclrtest", "AnotherTestAttribute"));
