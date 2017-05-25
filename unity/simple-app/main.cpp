@@ -534,6 +534,13 @@ int main(int argc, char * argv[])
         assert(strcmp(assemblyName, "coreclr-test") == 0);
     }
 
+    {
+        GET_AND_ASSERT(objectClass, mono_class_from_name(mono_get_corlib(), "System", "Object"));
+        GET_AND_ASSERT(objectType, mono_class_get_type(objectClass));
+
+        GET_AND_ASSERT(objectTypeObject, mono_type_get_object(domain, objectType));
+    }
+
     printf("Cleaning up...\n");
     mono_unity_jit_cleanup(domain);
 

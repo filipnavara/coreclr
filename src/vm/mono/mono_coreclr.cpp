@@ -1434,8 +1434,9 @@ extern "C" gint32 mono_class_array_element_size(MonoClass *ac)
 
 extern "C" MonoObject* mono_type_get_object(MonoDomain *domain, MonoType *type)
 {
-    MonoType_clr* clrType = reinterpret_cast<MonoType_clr*>(type);
-    return (MonoObject*) OBJECTREFToObject(clrType->GetManagedClassObject());
+    TypeHandle clrType = TypeHandle::FromPtr(reinterpret_cast<PTR_VOID>(type));
+    GCX_COOP();
+    return (MonoObject*) OBJECTREFToObject(clrType.GetManagedClassObject());
 }
 
 extern "C" gboolean mono_class_is_generic(MonoClass* klass)
@@ -1662,6 +1663,7 @@ extern "C" MonoImage* mono_image_open_from_data_with_name(char *data, guint32 da
 {
     // TODO: not sure this is the correct way
     MonoImage_clr* assembly = AssemblyNative::LoadFromBuffer(FALSE, (const BYTE*)data, data_len, nullptr, 0, nullptr, nullptr, kCurrentAppDomain);
+    assembly->EnsureActive();
     return (MonoImage*)assembly;
 }
 
@@ -1733,8 +1735,9 @@ extern "C" MonoObject * mono_value_box(MonoDomain *domain, MonoClass *klass, gpo
 
 extern "C" MonoImage* mono_class_get_image(MonoClass *klass)
 {
-    ASSERT_NOT_IMPLEMENTED;
-    return NULL;
+    MonoClass_clr* classClr = (MonoClass_clr*)klass;
+
+    return (MonoImage*)classClr->GetAssembly();
 }
 
 extern "C" char mono_signature_is_instance(MonoMethodSignature *sig)
@@ -1944,7 +1947,7 @@ extern "C" void mono_gc_collect(int generation)
 {
     FCALL_CONTRACT;
     _ASSERTE(generation >= -1);
-    GCHeapUtilities::GetGCHeap()->GarbageCollect(generation, false, collection_blocking);
+    //GCHeapUtilities::GetGCHeap()->GarbageCollect(generation, false, collection_blocking);
 }
 
 extern "C" int mono_gc_max_generation()
