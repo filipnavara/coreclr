@@ -723,10 +723,9 @@ extern "C" int mono_field_get_offset(MonoClassField *field)
 
 extern "C" MonoClassField* mono_class_get_fields(MonoClass* klass, gpointer *iter)
 {
-    ASSERT_NOT_IMPLEMENTED;
     CONTRACTL
     {
-        NOTHROW;
+        THROWS;
         GC_NOTRIGGER;
         PRECONDITION(klass != NULL);
     }
@@ -736,45 +735,23 @@ extern "C" MonoClassField* mono_class_get_fields(MonoClass* klass, gpointer *ite
     {
         return NULL;
     }
-    /*
-    struct FieldIterator
-    {
-        MonoClassField_clr *current;
-        MonoClassField_clr *end;
-    };
     MonoClass_clr* klass_clr = (MonoClass_clr*)klass;
 
-    FieldIterator* iterator = (FieldIterator*)*iter;
-    if (iterator == NULL)
+    ApproxFieldDescIterator* iterator = (ApproxFieldDescIterator*)*iter;
+    if (iterator == nullptr)
     {
-        SIZE_T fieldCount = EEClass::FieldDescListSize(klass_clr);
-        if (fieldCount > 0)
-        {
-            iterator = new FieldIterator();
-            iterator->current = klass_clr->GetClass()->GetFieldDescList();;
-            iterator->end = iterator->current + fieldCount;
-            *iter = iterator;
-        }
-        else
-        {
-            return NULL;
-        }
-    }
-    else
-    {
-        iterator->current++;
-        if (iterator->current >= iterator->end)
-        {
-            *iter = NULL;
-            delete iterator;
-            return NULL;
-        }
+        iterator = new ApproxFieldDescIterator(klass_clr, ApproxFieldDescIterator::INSTANCE_FIELDS | ApproxFieldDescIterator::STATIC_FIELDS);
+        *iter = iterator;
     }
 
-    return (MonoClassField*)iterator->current;
-    */
-    // TODO:
-    return nullptr;
+    auto nextField = iterator->Next();
+    if (nextField == nullptr)
+    {
+        delete iterator;
+        return nullptr;
+    }
+
+    return (MonoClassField*)nextField;
 }
 
 extern "C" MonoClass* mono_class_get_nested_types(MonoClass* klass, gpointer *iter)
@@ -1054,8 +1031,15 @@ extern "C" gunichar2* mono_string_to_utf16(MonoString *string_obj)
 
 extern "C" const char* mono_field_get_name(MonoClassField *field)
 {
-    ASSERT_NOT_IMPLEMENTED;
-    return NULL;
+    CONTRACTL
+    {
+        THROWS;
+        GC_NOTRIGGER;
+        MODE_ANY;
+    }
+    CONTRACTL_END
+    auto field_clr = (MonoClassField_clr*)field;
+    return field_clr->GetName();
 }
 
 extern "C" MonoClass* mono_field_get_parent(MonoClassField *field)

@@ -317,6 +317,23 @@ int main(int argc, char * argv[])
         assert(result);
     }
 
+    // Test mono_class_get_fields
+    {
+        gpointer ptr = nullptr;
+        int count = 0;
+        std::string fieldnames;
+        MonoClassField* field;
+        while (field = mono_class_get_fields(klass, &ptr))
+        {
+            auto fieldname = mono_field_get_name(field);
+            assert(fieldname != nullptr);
+            fieldnames += fieldname;
+            count++;
+        } 
+        assert(count == 4);
+        assert(fieldnames == "xyzw");
+    }
+
     // Testing methods to work with array type
     {
         GET_AND_ASSERT(int32Class, mono_class_from_name(mono_get_corlib(), "System", "Int32"));

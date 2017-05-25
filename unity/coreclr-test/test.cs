@@ -17,11 +17,11 @@ namespace coreclrtest
     [TestAttribute]
     class ClassWithAttribute
     {
+        private int b;
         public void Method1()
         {
 
         }
-
         private void Method2()
         {
             
@@ -31,6 +31,10 @@ namespace coreclrtest
     class test : ClassWithAttribute
     {
         private int x = 0;
+        private int y;
+        private int z;
+        private static int w;
+
         public test()
         {
             x = 7;
