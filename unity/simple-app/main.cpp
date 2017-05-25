@@ -10,6 +10,8 @@
 #include <dlfcn.h>
 #endif
 
+#include <MonoTypeSignatures.h>
+
 #define USE_CORECLR
 
 typedef signed short SInt16;
@@ -359,6 +361,21 @@ int main(int argc, char * argv[])
         auto nsname = mono_class_get_namespace(klass);
         assert(nsname != nullptr);
         assert(strcmp(nsname, "coreclrtest") == 0);
+    }
+    
+     // Testing types
+    {
+        GET_AND_ASSERT(objectClass, mono_class_from_name(mono_get_corlib(), "System", "Object"));
+        GET_AND_ASSERT(objectType, mono_class_get_type(objectClass));
+        GET_AND_ASSERT(stringObject, mono_string_new_wrapper("yoyo"));
+        GET_AND_ASSERT(stringClass, mono_object_get_class((MonoObject*)stringObject));
+        GET_AND_ASSERT(stringType, mono_class_get_type(stringClass));
+        GET_AND_ASSERT(int32Class, mono_class_from_name(mono_get_corlib(), "System", "Int32"));
+        GET_AND_ASSERT(int32Type, mono_class_get_type(int32Class));
+
+        assert(mono_type_get_type(objectType) == MONO_TYPE_CLASS);
+        assert(mono_type_get_type(stringType) == MONO_TYPE_CLASS);
+        assert(mono_type_get_type(int32Type) == MONO_TYPE_I4);
     }
 
     GET_AND_ASSERT(klassClassWithAttribute, mono_class_from_name(image, "coreclrtest", "ClassWithAttribute"));

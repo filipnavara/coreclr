@@ -1075,8 +1075,8 @@ extern "C" MonoType* mono_field_get_type(MonoClassField *field)
 
 extern "C" int mono_type_get_type(MonoType *type)
 {
-    MonoType_clr* clrType = reinterpret_cast<MonoType_clr*>(type);
-    auto elementType = clrType->GetSignatureCorElementType();
+    TypeHandle typeHandle = TypeHandle::FromPtr((PTR_VOID)type);
+    auto elementType = typeHandle.GetMethodTable()->GetVerifierCorElementType();
 
     switch(elementType)
     {
