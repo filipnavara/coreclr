@@ -318,6 +318,13 @@ int main(int argc, char * argv[])
         assert(mono_array_element_size(arrayInt64Class) == 8);
 
         GET_AND_ASSERT(arrayInt32Instance, mono_array_new(domain, int32Class, 5));
+        GET_AND_ASSERT(arrayInt32ElementClass, mono_class_get_element_class(arrayInt32Class));
+
+        const char* className1 = mono_class_get_name(arrayInt32ElementClass);
+        const char* className2 = mono_class_get_name(int32Class);
+        assert(arrayInt32ElementClass == int32Class);
+        assert(strcmp(className1, className2) == 0);
+        assert(strcmp(className1, "Int32") == 0);
     }
 
 
