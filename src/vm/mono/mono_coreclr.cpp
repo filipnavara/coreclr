@@ -850,7 +850,7 @@ extern "C" MonoMethod* mono_class_get_methods(MonoClass* klass, gpointer *iter)
     {
         // TODO: Using the option FALSE to iterate methods through a non-canonical type.
         // Not sure exactly what does this mean
-        iterator = new MethodTable::IntroducedMethodIterator(klass_clr, FALSE);
+        iterator = new MethodTable::IntroducedMethodIterator(klass_clr, 0);
         *iter = iterator;
     }
 
@@ -1198,7 +1198,7 @@ extern "C" MonoClass* mono_method_get_class(MonoMethod *method)
 
 extern "C" MonoClass* mono_object_get_class(MonoObject *obj)
 {
-    MonoClass_clr* klass = reinterpret_cast<MonoObject_clr*>(obj)->GetTypeHandle().AsMethodTable();
+    MonoClass_clr* klass = reinterpret_cast<MonoObject_clr*>(obj)->GetMethodTable();
     return (MonoClass*)klass;
 }
 
