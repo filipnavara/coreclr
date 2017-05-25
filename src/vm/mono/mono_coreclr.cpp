@@ -1069,7 +1069,11 @@ extern "C" MonoType* mono_field_get_type(MonoClassField *field)
 extern "C" int mono_type_get_type(MonoType *type)
 {
     TypeHandle typeHandle = TypeHandle::FromPtr((PTR_VOID)type);
-    auto elementType = typeHandle.GetMethodTable()->GetVerifierCorElementType();
+ 
+    // TODO: Different behavior than mono
+    // It seems that CLR is collapsing type like
+    // ELEMENT_TYPE_OBJECT into ELEMENT_TYPE_CLASS
+    auto elementType = typeHandle.GetVerifierCorElementType();
 
     switch(elementType)
     {

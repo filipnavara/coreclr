@@ -400,9 +400,14 @@ int main(int argc, char * argv[])
         GET_AND_ASSERT(int32Class, mono_class_from_name(mono_get_corlib(), "System", "Int32"));
         GET_AND_ASSERT(int32Type, mono_class_get_type(int32Class));
 
-        assert(mono_type_get_type(objectType) == MONO_TYPE_CLASS);
-        assert(mono_type_get_type(stringType) == MONO_TYPE_CLASS);
-        assert(mono_type_get_type(int32Type) == MONO_TYPE_I4);
+        auto type1 = mono_type_get_type(objectType);
+        assert(type1 == MONO_TYPE_CLASS);
+        //assert(type1 == MONO_TYPE_OBJECT);  // ON MONO
+        type1 = mono_type_get_type(stringType);
+        assert(type1 == MONO_TYPE_CLASS);
+        //assert(type1 == MONO_TYPE_STRING); // ON MONO
+        type1 = mono_type_get_type(int32Type);
+        assert(type1 == MONO_TYPE_I4);
     }
 
     //Test for mono_class_from_mono_type
