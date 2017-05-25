@@ -1954,7 +1954,8 @@ extern "C" void mono_gc_collect(int generation)
 {
     FCALL_CONTRACT;
     _ASSERTE(generation >= -1);
-    //GCHeapUtilities::GetGCHeap()->GarbageCollect(generation, false, collection_blocking);
+    GCX_COOP();
+    GCHeapUtilities::GetGCHeap()->GarbageCollect(generation, false, collection_blocking);
 }
 
 extern "C" int mono_gc_max_generation()

@@ -541,6 +541,18 @@ int main(int argc, char * argv[])
 		//GET_AND_ASSERT(genericClass, mono_type_get_class(fieldType));
 	}
 
+
+    // Test mono_gc_collect
+    {
+        auto maxgen = mono_gc_max_generation();
+        assert(maxgen >= 0);
+        do {
+            mono_gc_collect(maxgen);
+            maxgen--;
+        } while (maxgen >= 0);
+    }
+
+
 	{
 		GET_AND_ASSERT(method, mono_class_get_method_from_name(klass, "TestStringIn", 1));
 		GET_AND_ASSERT(signature, mono_method_signature(method));
