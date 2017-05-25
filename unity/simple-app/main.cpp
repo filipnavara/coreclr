@@ -87,7 +87,7 @@ void* get_handle()
 
         if(s_MonoLibrary == nullptr)
         {
-            printf("Failed to load mono\n");
+            assert(false && "Failed to load mono\n");
             exit(1);
         }
     }
