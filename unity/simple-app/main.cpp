@@ -516,9 +516,19 @@ int main(int argc, char * argv[])
 	{
 		assert(mono_class_is_generic(klass) == FALSE);
 		GET_AND_ASSERT(genericClass, mono_class_from_name(image, "coreclrtest", "GenericClass`1"));
-		assert(mono_class_is_generic(genericClass) == 1);
-		assert(mono_class_is_inflated(genericClass) == 1);
-		gboolean isAbstract = mono_unity_class_is_abstract(genericClass);
+        assert(mono_class_is_generic(genericClass));
+        assert(!mono_class_is_inflated(genericClass));
+
+        GET_AND_ASSERT(genericClass1, mono_class_from_name(image, "coreclrtest", "GenericInstance"));
+        assert(!mono_class_is_generic(genericClass1));
+        assert(!mono_class_is_inflated(genericClass1));
+
+        auto parentGenericClass1 = mono_class_get_parent(genericClass1);
+        assert(parentGenericClass1 != nullptr);
+        assert(!mono_class_is_generic(parentGenericClass1));
+        assert(mono_class_is_inflated(parentGenericClass1));
+        
+        gboolean isAbstract = mono_unity_class_is_abstract(genericClass);
 		assert(0 == isAbstract);
 	}
 

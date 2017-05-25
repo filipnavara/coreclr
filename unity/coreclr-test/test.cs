@@ -128,6 +128,10 @@ namespace coreclrtest
     {
     }
 
+    public class GenericInstance : GenericClass<int>
+    {
+    }
+ 
     public abstract class HasGenericField
     {
         public GenericClass<string> genericField;

@@ -1459,7 +1459,10 @@ extern "C" gboolean mono_class_is_inflated(MonoClass* klass)
     } CONTRACTL_END;
     MonoClass_clr* klass_clr = (MonoClass_clr*)klass;
     // TODO: is it really the concept behind inflated? (generic instance?)
-    return klass_clr->HasInstantiation();
+    auto isgeneric = klass_clr->GetNumGenericArgs() > 0
+        && !klass_clr->IsGenericTypeDefinition();
+
+    return isgeneric ? TRUE : FALSE;
 }
 
 #if !USE_CONSOLEBRANCH_MONO
