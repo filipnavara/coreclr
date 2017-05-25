@@ -1787,19 +1787,28 @@ extern "C" void mono_set_assemblies_path(const char* name)
 
 
 guint32 handleId = 0;
-MapSHashWithRemove<guint32, OBJECTHANDLE> g_gc_map_id_to_handle;
+struct MonoHandleInfo
+{
+    MonoHandleInfo() : Handle(nullptr), Pinned(0)
+    {
+    }
+    MonoHandleInfo(const MonoHandleInfo& copy) : Handle(copy.Handle), Pinned(copy.Pinned)
+    {
+    }
+    OBJECTHANDLE Handle;
+    gboolean Pinned;
+};
+MapSHashWithRemove<guint32, MonoHandleInfo> g_gc_map_id_to_handle;
 
 extern "C" guint32 mono_gchandle_new(MonoObject *obj, gboolean pinned)
 {
     CONTRACTL
     {
-        NOTHROW;
-        GC_NOTRIGGER;
-        MODE_COOPERATIVE;
         PRECONDITION(obj != NULL);
     }
     CONTRACTL_END;
 
+    GCX_COOP();
     // TODO: This method is not accurate with Cooperative/Preemptive mode
 
     // NOTE
@@ -1810,9 +1819,12 @@ extern "C" guint32 mono_gchandle_new(MonoObject *obj, gboolean pinned)
     CrstHolder lock(&g_gc_handles_lock);
 
     auto objref = ObjectToOBJECTREF((MonoObject_clr*)obj);
-    auto objhandle = pinned ? 
-    GetAppDomain()->CreatePinningHandle(objref) :
-    GetAppDomain()->CreateHandle(objref);
+    OBJECTHANDLE rawHandle = pinned ?
+        GetAppDomain()->CreatePinningHandle(objref) :
+        GetAppDomain()->CreateHandle(objref);
+    MonoHandleInfo objhandle;
+    objhandle.Handle = rawHandle;
+    objhandle.Pinned = pinned;
 
     auto id = ++handleId;
     g_gc_map_id_to_handle.Add(id, objhandle);
@@ -1820,24 +1832,37 @@ extern "C" guint32 mono_gchandle_new(MonoObject *obj, gboolean pinned)
     return id;
 }
 
+extern "C" void mono_gchandle_free(guint32 gchandle)
+{
+    CrstHolder lock(&g_gc_handles_lock);
+
+    MonoHandleInfo handle;
+    if (g_gc_map_id_to_handle.Lookup(gchandle, &handle))
+    {
+        if (handle.Pinned)
+        {
+            DestroyPinningHandle(handle.Handle);
+        }
+        else
+        {
+            DestroyHandle(handle.Handle);
+        }
+        g_gc_map_id_to_handle.Remove(gchandle);
+    }
+}
+
+
 extern "C" MonoObject* mono_gchandle_get_target(guint32 gchandle)
 {
-    CONTRACTL
-    {
-        NOTHROW;
-        GC_NOTRIGGER;
-        MODE_COOPERATIVE;
-    }
-    CONTRACTL_END;
-
+    GCX_COOP();
     // TODO: This method is not accurate with Cooperative/Preemptive mode
 
     CrstHolder lock(&g_gc_handles_lock);
 
-    OBJECTHANDLE handle;
+    MonoHandleInfo handle;
     if (g_gc_map_id_to_handle.Lookup(gchandle, &handle))
     {
-        OBJECTREF objref = ObjectFromHandle(handle);
+        OBJECTREF objref = ObjectFromHandle(handle.Handle);
         return (MonoObject*)OBJECTREFToObject(objref);
     }
 
@@ -1861,18 +1886,6 @@ extern "C" MonoObject* mono_assembly_get_object(MonoDomain *domain, MonoAssembly
 {
     ASSERT_NOT_IMPLEMENTED;
     return NULL;
-}
-
-extern "C" void mono_gchandle_free(guint32 gchandle)
-{
-    CrstHolder lock(&g_gc_handles_lock);
-
-    OBJECTHANDLE handle;
-    if (g_gc_map_id_to_handle.Lookup(gchandle, &handle))
-    {
-        DestroyHandle(handle);
-        g_gc_map_id_to_handle.Remove(gchandle);
-    }
 }
 
 typedef gboolean(*MonoStackWalk) (MonoMethod *method, gint32 native_offset, gint32 il_offset, gboolean managed, gpointer data);

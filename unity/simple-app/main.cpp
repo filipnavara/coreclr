@@ -321,6 +321,26 @@ int main(int argc, char * argv[])
     }
 
 
+    // Test mono_gchandle_new and mono_gchandle_free
+    {
+        auto handle1 = mono_gchandle_new(testobj, false);
+        assert(handle1 != 0);
+
+        auto target = mono_gchandle_get_target(handle1);
+        assert(target == testobj);
+
+        mono_gchandle_free(handle1);
+
+        auto targetnul = mono_gchandle_get_target(handle1);
+        assert(targetnul == nullptr);
+
+        auto handle2 = mono_gchandle_new(testobj, true);
+        assert(handle2 != 0);
+        mono_gchandle_free(handle2);
+
+        assert(handle1 != handle2);
+    }
+
     GET_AND_ASSERT(klassClassWithAttribute, mono_class_from_name(image, "coreclrtest", "ClassWithAttribute"));
     GET_AND_ASSERT(klassTestAttribute, mono_class_from_name(image, "coreclrtest", "TestAttribute"));
     GET_AND_ASSERT(klassAnotherTestAttribute, mono_class_from_name(image, "coreclrtest", "AnotherTestAttribute"));
