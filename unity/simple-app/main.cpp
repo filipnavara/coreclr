@@ -193,7 +193,13 @@ int main(int argc, char * argv[])
     GET_AND_ASSERT(image, mono_assembly_get_image(assembly));
     GET_AND_ASSERT(klass, mono_class_from_name(image, "coreclrtest", "test"));
     GET_AND_ASSERT(method, mono_class_get_method_from_name (klass, "GetNumber", 0));
-    
+
+    {
+        auto methodname = mono_method_get_name(method);
+        assert(methodname != nullptr);
+        assert(strcmp(methodname, "GetNumber") == 0);
+    }
+
     //GET_AND_ASSERT(returnValue, mono_runtime_invoke(method, nullptr, nullptr, nullptr));
     auto returnValue = mono_runtime_invoke(method, nullptr, nullptr, nullptr);
     {
