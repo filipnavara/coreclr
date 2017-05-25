@@ -1225,25 +1225,28 @@ extern "C" char* mono_string_to_utf8(MonoString *string_obj)
 
 extern "C" MonoString* mono_string_new_wrapper(const char* text)
 {
-    int length = (int)strlen(text) + 1;
-    wchar_t* wText = new wchar_t[length];
-    Wsz_mbstowcs(wText, text, length);
-
-    EEStringData stringData(length, wText);
-
-    return (MonoString*)OBJECTREFToObject(AllocateStringObject(&stringData));
+    assert(text != nullptr);
+    SString sstr(SString::Utf8, text);
+    GCX_COOP();
+    return (MonoString*)OBJECTREFToObject(AllocateString(sstr));
 }
 
 extern "C" MonoString* mono_string_new_len(MonoDomain *domain, const char *text, guint32 length)
 {
-    ASSERT_NOT_IMPLEMENTED;
-    return NULL;
+    assert(text != nullptr);
+    SString sstr(SString::Utf8, text);
+    GCX_COOP();
+    STRINGREF strObj = AllocateString(length);
+    memcpyNoGCRefs(strObj->GetBuffer(), sstr.GetUnicode(), sstr.GetCount() * sizeof(WCHAR));
+    return (MonoString*)OBJECTREFToObject(strObj);
 }
 
 extern "C" MonoString* mono_string_from_utf16(const gunichar2* text)
 {
-    ASSERT_NOT_IMPLEMENTED;
-    return NULL;
+    assert(text != nullptr);
+    SString sstr((const WCHAR*)text);
+    GCX_COOP();
+    return (MonoString*)OBJECTREFToObject(AllocateString(sstr));
 }
 
 extern "C" MonoClass* mono_class_get_parent(MonoClass *klass)
