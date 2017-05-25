@@ -834,10 +834,10 @@ extern "C" MonoMethod* mono_class_get_methods(MonoClass* klass, gpointer *iter)
 
     MonoClass_clr* klass_clr = (MonoClass_clr*)klass;
 
-    MethodTable::MethodIterator* iterator = (MethodTable::MethodIterator*)*iter;
+    MethodTable::IntroducedMethodIterator* iterator = (MethodTable::IntroducedMethodIterator*)*iter;
     if (iterator == NULL)
     {
-        iterator = new MethodTable::MethodIterator(klass_clr);
+        iterator = new MethodTable::IntroducedMethodIterator(klass_clr);
         *iter = iterator;
     }
 

@@ -452,7 +452,7 @@ int main(int argc, char * argv[])
             methods.push_back(mono_method_get_name(method));
         }
 
-        assert(methods.size() == 7);
+        assert(methods.size() == 3);
         assert(std::find(methods.begin(), methods.end(), "Method1") != methods.end());
         assert(std::find(methods.begin(), methods.end(), "Method2") != methods.end());
     }
