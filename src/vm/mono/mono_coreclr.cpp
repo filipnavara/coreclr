@@ -507,11 +507,11 @@ extern "C" void mono_runtime_object_init(MonoObject *this_obj)
     {
         THROWS;
         GC_TRIGGERS;
-        MODE_COOPERATIVE;
-        INJECT_FAULT(COMPlusThrowOM()); // TODO: Check if this is applicable here
         PRECONDITION(this_obj != NULL);
     }
     CONTRACTL_END;
+
+    GCX_COOP();
 
     // TODO check what to do with the exception thrown by CallDefaultConstructor
     OBJECTREF objref = ObjectToOBJECTREF((MonoObject_clr*)this_obj);
@@ -688,10 +688,8 @@ extern "C" void mono_field_set_value(MonoObject *obj, MonoClassField *field, voi
 {
     // TODO: Add contact
     // TODO: obj not protected?
-    FCALL_CONTRACT;
-
-    OBJECTREF objectRef = ObjectToOBJECTREF((MonoObject_clr*)obj);
     GCX_COOP();
+    OBJECTREF objectRef = ObjectToOBJECTREF((MonoObject_clr*)obj);
     GCPROTECT_BEGIN(objectRef); // Is it really necessary in cooperative mode? for a GetInstanceField?
     {
         ((MonoClassField_clr*)field)->SetInstanceField(objectRef, value);
@@ -703,10 +701,8 @@ extern "C" void mono_field_get_value(MonoObject *obj, MonoClassField *field, voi
 {
     // TODO: Add contact
     // TODO: obj not protected?
-    FCALL_CONTRACT;
-
-    OBJECTREF objectRef = ObjectToOBJECTREF((MonoObject_clr*)obj);
     GCX_COOP();
+    OBJECTREF objectRef = ObjectToOBJECTREF((MonoObject_clr*)obj);
     GCPROTECT_BEGIN(objectRef); // Is it really necessary in cooperative mode? for a GetInstanceField?
     {
         auto field_clr = (MonoClassField_clr*)field;
@@ -1396,7 +1392,6 @@ extern "C" MonoArray* mono_array_new(MonoDomain *domain, MonoClass *eclass, guin
     CONTRACTL{
         THROWS;
         GC_TRIGGERS;
-        MODE_COOPERATIVE; // returns an objref without pinning it => cooperative
         PRECONDITION(domain != nullptr);
         PRECONDITION(eclass != nullptr);
     } CONTRACTL_END;
