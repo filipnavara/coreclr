@@ -402,6 +402,22 @@ int main(int argc, char * argv[])
         assert(klass_test == klass);
     }
 
+    //test for mono_object_get_class
+    {
+        GET_AND_ASSERT(stringObject, mono_string_new_wrapper("yoyo"));
+        GET_AND_ASSERT(stringClass, mono_object_get_class((MonoObject*)stringObject));
+
+        auto clsname = mono_class_get_name(stringClass);
+        assert(clsname != nullptr);
+        assert(strcmp(clsname, "String") == 0);
+
+        GET_AND_ASSERT(testObjClass, mono_object_get_class(testobj));
+
+        clsname = mono_class_get_name(testObjClass);
+        assert(clsname != nullptr);
+        assert(strcmp(clsname, "test") == 0);
+    }
+
     GET_AND_ASSERT(klassClassWithAttribute, mono_class_from_name(image, "coreclrtest", "ClassWithAttribute"));
     GET_AND_ASSERT(klassTestAttribute, mono_class_from_name(image, "coreclrtest", "TestAttribute"));
     GET_AND_ASSERT(klassAnotherTestAttribute, mono_class_from_name(image, "coreclrtest", "AnotherTestAttribute"));
