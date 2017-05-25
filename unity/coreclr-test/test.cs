@@ -123,4 +123,13 @@ namespace coreclrtest
         {
         }
     }
+
+    public class GenericClass<T>
+    {
+    }
+
+    public class HasGenericField
+    {
+        public GenericClass<string> genericField;
+    }
 }
