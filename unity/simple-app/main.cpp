@@ -323,7 +323,7 @@ int main(int argc, char * argv[])
         int count = 0;
         std::string fieldnames;
         MonoClassField* field;
-        while (field = mono_class_get_fields(klass, &ptr))
+        while ((field = mono_class_get_fields(klass, &ptr)) != nullptr)
         {
             auto fieldname = mono_field_get_name(field);
             assert(fieldname != nullptr);
@@ -508,20 +508,28 @@ int main(int argc, char * argv[])
 
 	{
 		GET_AND_ASSERT(genericClass, mono_class_from_name(image, "coreclrtest", "GenericClass`1"));
-		assert(mono_class_is_generic(genericClass) == TRUE);
-		assert(mono_class_is_inflated(genericClass) == TRUE);
+		assert(mono_class_is_generic(genericClass) == 1);
+		assert(mono_class_is_inflated(genericClass) == 1);
 		gboolean isAbstract = mono_unity_class_is_abstract(genericClass);
-		assert(FALSE == isAbstract);
+		assert(0 == isAbstract);
 	}
 
 	{
 		GET_AND_ASSERT(classWithGenericField, mono_class_from_name(image, "coreclrtest", "HasGenericField"));
 		gboolean isAbstract = mono_unity_class_is_abstract(classWithGenericField);
-		assert(FALSE != isAbstract);
+		assert(0 != isAbstract);
 		GET_AND_ASSERT(genericField, mono_class_get_field_from_name(classWithGenericField, "genericField"));
 		GET_AND_ASSERT(fieldType, mono_field_get_type(genericField));
 		//GET_AND_ASSERT(genericClass, mono_type_get_class(fieldType));
 	}
+
+    // test for mono_image_get_name
+    {
+        const char* assemblyName = mono_image_get_name(image);
+
+        assert(assemblyName != nullptr);
+        assert(strcmp(assemblyName, "coreclr-test") == 0);
+    }
 
     printf("Cleaning up...\n");
     mono_unity_jit_cleanup(domain);
