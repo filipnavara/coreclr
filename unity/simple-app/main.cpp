@@ -509,6 +509,7 @@ int main(int argc, char * argv[])
 	}
 
 	{
+		assert(mono_class_is_generic(klass) == FALSE);
 		GET_AND_ASSERT(genericClass, mono_class_from_name(image, "coreclrtest", "GenericClass`1"));
 		assert(mono_class_is_generic(genericClass) == 1);
 		assert(mono_class_is_inflated(genericClass) == 1);
