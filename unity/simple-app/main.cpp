@@ -438,6 +438,20 @@ int main(int argc, char * argv[])
         assert(std::find(methods.begin(), methods.end(), "Method2") != methods.end());
     }
 
+    // test mono_class_set_userdata and mono_class_get_userdata_offset
+    {
+        int userData = 100;
+        mono_class_set_userdata(klass, &userData);
+
+        int* userDataFromClass = (int*)mono_class_get_userdata(klass);
+
+        assert(&userData == userDataFromClass);
+
+        int offsetUserData = mono_class_get_userdata_offset();
+        uint64_t userDataFromOffset = *(uint64_t*)(((uint8_t*)klass) + offsetUserData);
+        assert((uint64_t)userDataFromOffset == (uint64_t)userDataFromClass);
+    }
+
     GET_AND_ASSERT(klassClassWithAttribute, mono_class_from_name(image, "coreclrtest", "ClassWithAttribute"));
     GET_AND_ASSERT(klassTestAttribute, mono_class_from_name(image, "coreclrtest", "TestAttribute"));
     GET_AND_ASSERT(klassAnotherTestAttribute, mono_class_from_name(image, "coreclrtest", "AnotherTestAttribute"));
