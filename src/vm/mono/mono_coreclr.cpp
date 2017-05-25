@@ -1445,7 +1445,7 @@ extern "C" gint32 mono_class_array_element_size(MonoClass *ac)
     auto ac_clr = (MonoClass_clr*)ac;
 
     // TODO: Is it really the method to use?
-    DWORD s = ac_clr->GetBaseSize();
+    DWORD s = ac_clr->IsValueType() ? ac_clr->GetNumInstanceFieldBytes() : ac_clr->GetBaseSize();
     return s;
 }
 
@@ -1681,6 +1681,7 @@ extern "C" MonoImage* mono_image_open_from_data_full(const void *data, guint32 d
 
 extern "C" MonoImage* mono_image_open_from_data_with_name(char *data, guint32 data_len, gboolean need_copy, int *status, gboolean refonly, const char *name)
 {
+    GCX_COOP();
     // TODO: not sure this is the correct way
     MonoImage_clr* assembly = AssemblyNative::LoadFromBuffer(FALSE, (const BYTE*)data, data_len, nullptr, 0, nullptr, nullptr, kCurrentAppDomain);
     assembly->EnsureActive();
