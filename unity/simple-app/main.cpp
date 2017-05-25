@@ -449,6 +449,12 @@ int main(int argc, char * argv[])
 
     GET_AND_ASSERT(enumClass, mono_get_enum_class());
 
+	{
+		GET_AND_ASSERT(parent, mono_class_get_parent(klass));
+		const char* parentClassName = mono_class_get_name(parent);
+		assert(strcmp(parentClassName, "ClassWithAttribute") == 0);
+	}
+
     printf("Cleaning up...\n");
     mono_unity_jit_cleanup(domain);
 
