@@ -378,6 +378,15 @@ int main(int argc, char * argv[])
         assert(mono_type_get_type(int32Type) == MONO_TYPE_I4);
     }
 
+    //Test for mono_class_from_mono_type
+    {
+        GET_AND_ASSERT(objectClass, mono_class_from_name(mono_get_corlib(), "System", "Object"));
+        GET_AND_ASSERT(objectType, mono_class_get_type(objectClass));
+        GET_AND_ASSERT(objectClassNew, mono_class_from_mono_type(objectType));
+
+        assert(objectClass == objectClassNew);
+    }
+
     GET_AND_ASSERT(klassClassWithAttribute, mono_class_from_name(image, "coreclrtest", "ClassWithAttribute"));
     GET_AND_ASSERT(klassTestAttribute, mono_class_from_name(image, "coreclrtest", "TestAttribute"));
     GET_AND_ASSERT(klassAnotherTestAttribute, mono_class_from_name(image, "coreclrtest", "AnotherTestAttribute"));
