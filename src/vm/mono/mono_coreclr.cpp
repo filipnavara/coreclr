@@ -2176,7 +2176,6 @@ extern "C" MonoClassField* mono_class_get_field_from_name(MonoClass *klass, cons
 {
     CONTRACTL
     {
-        NOTHROW;
     GC_NOTRIGGER;
     PRECONDITION(klass != NULL);
     }
