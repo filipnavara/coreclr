@@ -2763,3 +2763,11 @@ extern "C" int mono_unity_backtrace_from_context(void* context, void* array[], i
     return 0;
 }
 #endif
+
+
+extern "C" int coreclr_array_length(MonoArray* array)
+{
+    ArrayBase* arrayObj = (ArrayBase*)array;
+
+    return arrayObj->GetNumComponents();
+}

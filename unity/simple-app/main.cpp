@@ -6,7 +6,7 @@
 #include <assert.h>
 #include <list>
 #include <algorithm>
-
+#define CORECLR 1
 #ifndef WIN32
 #include <unistd.h>
 #include <dlfcn.h>
@@ -363,6 +363,8 @@ int main(int argc, char * argv[])
         GET_AND_ASSERT(arrayInt32Instance, mono_array_new(domain, int32Class, 5));
         GET_AND_ASSERT(arrayInt32ElementClass, mono_class_get_element_class(arrayInt32Class));
 
+        assert(coreclr_array_length(arrayInt32Instance) == 5);
+
         const char* className1 = mono_class_get_name(arrayInt32ElementClass);
         const char* className2 = mono_class_get_name(int32Class);
         assert(arrayInt32ElementClass == int32Class);
@@ -533,7 +535,7 @@ int main(int argc, char * argv[])
 	}
 
 	{
-		assert(mono_class_is_generic(klass) == FALSE);
+		assert(mono_class_is_generic(klass) == 0);
 		GET_AND_ASSERT(genericClass, mono_class_from_name(image, "coreclrtest", "GenericClass`1"));
         assert(mono_class_is_generic(genericClass));
         assert(!mono_class_is_inflated(genericClass));

@@ -24,6 +24,7 @@ typedef void* mono_liveness_world_state_callback;
 
 // TODO: Move this to CMake
 #define ENABLE_MONO 1
+#define CORECLR 1
 
 #if defined(_DEBUG)
 #define MONO_PRE_ASSERTE         /* if you need to change modes before doing asserts override */
