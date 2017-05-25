@@ -1401,6 +1401,7 @@ extern "C" MonoArray* mono_array_new(MonoDomain *domain, MonoClass *eclass, guin
         PRECONDITION(eclass != nullptr);
     } CONTRACTL_END;
 
+    GCX_COOP();
     // TODO: handle large heap flag?
     auto arrayRef = AllocateObjectArray(n, (MonoClass_clr*)eclass);
     return (MonoArray*)OBJECTREFToObject(arrayRef);;

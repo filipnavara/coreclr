@@ -316,6 +316,8 @@ int main(int argc, char * argv[])
 
         assert(mono_array_element_size(arrayInt32Class) == 4);
         assert(mono_array_element_size(arrayInt64Class) == 8);
+
+        GET_AND_ASSERT(arrayInt32Instance, mono_array_new(domain, int32Class, 5));
     }
 
 
