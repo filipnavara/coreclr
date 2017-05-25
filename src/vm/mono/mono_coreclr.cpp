@@ -1424,17 +1424,10 @@ extern "C" MonoClass * mono_array_class_get(MonoClass *eclass, guint32 rank)
     // Might be a problem compare to mono implem that is caching
     // (clients might expect that for a same eclass+rank, we get the same array class pointer)
 
-    auto eclass_clr = (MonoClass_clr*)eclass;
-    auto domain_clr = (MonoDomain_clr*)g_RootDomain;
+    TypeHandle typeHandle(reinterpret_cast<MonoClass_clr*>(eclass));
+    auto arrayMT = typeHandle.MakeArray(rank);
 
-    auto classModule = eclass_clr->GetModule();
-    auto kind = rank == 1 ? ELEMENT_TYPE_SZARRAY : ELEMENT_TYPE_ARRAY;
-
-    // TODO: Is it ok to use a tracker like this?
-    AllocMemTracker amTracker;
-    auto arrayMT = classModule->CreateArrayMethodTable(eclass_clr, kind, rank, &amTracker);
-
-    return (MonoClass*)arrayMT;
+    return (MonoClass*)arrayMT.GetMethodTable();
 }
 
 extern "C" gint32 mono_class_array_element_size(MonoClass *ac)

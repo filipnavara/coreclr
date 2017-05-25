@@ -148,10 +148,10 @@ void InternalMethod()
 }
 
 typedef struct {
-    DWORD Data1;
-    WORD  Data2;
-    WORD  Data3;
-    BYTE  Data4[8];
+    uint32_t Data1;
+    uint16_t  Data2;
+    uint16_t  Data3;
+    uint8_t  Data4[8];
 } MYGUID;
 
 
@@ -306,6 +306,15 @@ int main(int argc, char * argv[])
         bool result = *(bool*)mono_object_unbox(resultObj);
         assert(result);
     }
+
+    // Testing methods to work with array type
+    {
+        GET_AND_ASSERT(intClass, mono_class_from_name(mono_get_corlib(), "System", "Int32"));
+        GET_AND_ASSERT(arrayClass, mono_array_class_get(intClass, 1));
+
+        assert(mono_array_element_size(arrayClass) == 4);
+    }
+
 
     GET_AND_ASSERT(klassClassWithAttribute, mono_class_from_name(image, "coreclrtest", "ClassWithAttribute"));
     GET_AND_ASSERT(klassTestAttribute, mono_class_from_name(image, "coreclrtest", "TestAttribute"));
