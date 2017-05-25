@@ -512,6 +512,13 @@ int main(int argc, char * argv[])
 		assert(mono_class_is_inflated(genericClass) == TRUE);
 	}
 
+	{
+		GET_AND_ASSERT(classWithGenericField, mono_class_from_name(image, "coreclrtest", "HasGenericField"));
+		GET_AND_ASSERT(genericField, mono_class_get_field_from_name(classWithGenericField, "genericField"));
+		GET_AND_ASSERT(fieldType, mono_field_get_type(genericField));
+		//GET_AND_ASSERT(genericClass, mono_type_get_class(fieldType));
+	}
+
     printf("Cleaning up...\n");
     mono_unity_jit_cleanup(domain);
 
