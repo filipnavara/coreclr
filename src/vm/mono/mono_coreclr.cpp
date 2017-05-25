@@ -747,6 +747,7 @@ extern "C" MonoClassField* mono_class_get_fields(MonoClass* klass, gpointer *ite
     auto nextField = iterator->Next();
     if (nextField == nullptr)
     {
+        *iter = nullptr;
         delete iterator;
         return nullptr;
     }
@@ -818,7 +819,7 @@ extern "C" MonoMethod* mono_class_get_methods(MonoClass* klass, gpointer *iter)
 {
     CONTRACTL
     {
-        NOTHROW;
+        THROWS;
         GC_NOTRIGGER;
         PRECONDITION(klass != NULL);
     }

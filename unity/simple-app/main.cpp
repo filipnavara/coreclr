@@ -444,7 +444,7 @@ int main(int argc, char * argv[])
         std::list<std::string> methods;
 
         MonoMethod* method = nullptr;
-        void* iter;
+        void* iter = nullptr;
         while((method = mono_class_get_methods(classWithMethods, &iter)) != nullptr)
         {
             methods.push_back(mono_method_get_name(method));
