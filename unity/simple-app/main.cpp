@@ -355,6 +355,10 @@ int main(int argc, char * argv[])
         auto clsname = mono_class_get_name(klass);
         assert(clsname != nullptr);
         assert(strcmp(clsname, "test") == 0);
+
+        auto nsname = mono_class_get_namespace(klass);
+        assert(nsname != nullptr);
+        assert(strcmp(nsname, "coreclrtest") == 0);
     }
 
     GET_AND_ASSERT(klassClassWithAttribute, mono_class_from_name(image, "coreclrtest", "ClassWithAttribute"));
