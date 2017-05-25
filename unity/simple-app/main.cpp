@@ -309,10 +309,13 @@ int main(int argc, char * argv[])
 
     // Testing methods to work with array type
     {
-        GET_AND_ASSERT(intClass, mono_class_from_name(mono_get_corlib(), "System", "Int32"));
-        GET_AND_ASSERT(arrayClass, mono_array_class_get(intClass, 1));
+        GET_AND_ASSERT(int32Class, mono_class_from_name(mono_get_corlib(), "System", "Int32"));
+        GET_AND_ASSERT(int64Class, mono_class_from_name(mono_get_corlib(), "System", "Int64"));
+        GET_AND_ASSERT(arrayInt32Class, mono_array_class_get(int32Class, 1));
+        GET_AND_ASSERT(arrayInt64Class, mono_array_class_get(int64Class, 1));
 
-        assert(mono_array_element_size(arrayClass) == 4);
+        assert(mono_array_element_size(arrayInt32Class) == 4);
+        assert(mono_array_element_size(arrayInt64Class) == 8);
     }
 
 
