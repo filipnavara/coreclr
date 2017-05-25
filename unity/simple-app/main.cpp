@@ -285,6 +285,18 @@ int main(int argc, char * argv[])
         assert(result == param1);
     }
 
+    // Test calling passing a out object and retrieving a ptr
+    {
+        GET_AND_ASSERT(method, mono_class_get_method_from_name(klass, "TestObjectOut", 2));
+        void* param1 = testobj;
+        void* param2 = nullptr;
+        void* params[2] = { param1, &param2 };
+        auto resultObj = mono_runtime_invoke(method, testobj, params, nullptr);
+        assert(resultObj == testobj);
+        assert(param2 == testobj);
+    }
+
+
     GET_AND_ASSERT(klassClassWithAttribute, mono_class_from_name(image, "coreclrtest", "ClassWithAttribute"));
     GET_AND_ASSERT(klassTestAttribute, mono_class_from_name(image, "coreclrtest", "TestAttribute"));
     GET_AND_ASSERT(klassAnotherTestAttribute, mono_class_from_name(image, "coreclrtest", "AnotherTestAttribute"));

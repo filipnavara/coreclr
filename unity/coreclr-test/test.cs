@@ -95,5 +95,11 @@ namespace coreclrtest
             Console.WriteLine(new IntPtr(ptr).ToString("x8"));
             return ptr;
         }
+
+        public object TestObjectOut(object test, out object test2)
+        {
+            test2 = test;
+            return test;
+        }
     }
 }

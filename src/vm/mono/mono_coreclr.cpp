@@ -609,6 +609,9 @@ extern "C" MonoObject* mono_runtime_invoke(MonoMethod *method, void *obj, void *
                 break;
             }
             break;
+        case ELEMENT_TYPE_BYREF:
+            argslots[slotIndex] = PtrToArgSlot(params[argIndex]);
+            break;
         case ELEMENT_TYPE_PTR:
             argslots[slotIndex] = PtrToArgSlot(*(void**)params[argIndex]);
             break;
@@ -624,7 +627,6 @@ extern "C" MonoObject* mono_runtime_invoke(MonoMethod *method, void *obj, void *
             assert(false && "This argType is not supported");
             break;
         }
-        // The following code is trying to follow the code
     }
 
     MethodDescCallSite invoker((MonoMethod_clr*)method, &objref);
@@ -659,7 +661,7 @@ extern "C" MonoObject* mono_runtime_invoke(MonoMethod *method, void *obj, void *
         case ELEMENT_TYPE_U:
         case ELEMENT_TYPE_PTR:
             if (hasReturnBufferArg)
-            {
+            {                
                 return (MonoObject*)OBJECTREFToObject(retTH.GetMethodTable()->Box(pRetBufStackCopy));
             }
             else 
