@@ -526,6 +526,39 @@ int main(int argc, char * argv[])
 		//GET_AND_ASSERT(genericClass, mono_type_get_class(fieldType));
 	}
 
+	{
+		GET_AND_ASSERT(method, mono_class_get_method_from_name(klass, "TestStringIn", 1));
+		GET_AND_ASSERT(signature, mono_method_signature(method));
+		guint32 param_count = mono_signature_get_param_count(signature);
+		assert(1 == param_count);
+		gpointer iter = NULL;
+		GET_AND_ASSERT(paramType, mono_signature_get_params(signature, &iter));
+		assert(NULL != iter);
+		paramType = mono_signature_get_params(signature, &iter);
+		assert(NULL == iter);
+		assert(NULL == paramType);
+		GET_AND_ASSERT(retType, mono_signature_get_return_type(signature));
+
+		method = mono_class_get_method_from_name(klass, "TestObjectOut", 2);
+		assert(NULL != method);
+		signature = mono_method_signature(method);
+		assert(NULL != signature);
+		param_count = mono_signature_get_param_count(signature);
+		assert(2 == param_count);
+		iter = NULL;
+		paramType = mono_signature_get_params(signature, &iter);
+		assert(NULL != iter);
+		assert(NULL != paramType);
+		paramType = mono_signature_get_params(signature, &iter);
+		assert(NULL != iter);
+		assert(NULL != paramType);
+		paramType = mono_signature_get_params(signature, &iter);
+		assert(NULL == iter);
+		assert(NULL == paramType);
+		retType = mono_signature_get_return_type(signature);
+		assert(NULL != retType);
+	}
+
     // test for mono_image_get_name
     {
         const char* assemblyName = mono_image_get_name(image);
