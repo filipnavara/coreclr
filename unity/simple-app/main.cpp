@@ -296,6 +296,16 @@ int main(int argc, char * argv[])
         assert(param2 == testobj);
     }
 
+    // Test calling allocation string and passing to a parameter method retuning the length of it
+    {
+        auto str = mono_string_new_wrapper("yoyo");
+        GET_AND_ASSERT(method, mono_class_get_method_from_name(klass, "TestStringIn", 1));
+        void* param1 = str;
+        void* params[1] = { param1 };
+        auto resultObj = mono_runtime_invoke(method, testobj, params, nullptr);
+        bool result = *(bool*)mono_object_unbox(resultObj);
+        assert(result);
+    }
 
     GET_AND_ASSERT(klassClassWithAttribute, mono_class_from_name(image, "coreclrtest", "ClassWithAttribute"));
     GET_AND_ASSERT(klassTestAttribute, mono_class_from_name(image, "coreclrtest", "TestAttribute"));

@@ -101,5 +101,10 @@ namespace coreclrtest
             test2 = test;
             return test;
         }
+
+        public bool TestStringIn(string test)
+        {
+            return test == "yoyo";
+        }
     }
 }
