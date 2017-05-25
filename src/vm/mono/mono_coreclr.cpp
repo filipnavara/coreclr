@@ -848,7 +848,9 @@ extern "C" MonoMethod* mono_class_get_methods(MonoClass* klass, gpointer *iter)
     MethodTable::IntroducedMethodIterator* iterator = (MethodTable::IntroducedMethodIterator*)*iter;
     if (iterator == NULL)
     {
-        iterator = new MethodTable::IntroducedMethodIterator(klass_clr);
+        // TODO: Using the option FALSE to iterate methods through a non-canonical type.
+        // Not sure exactly what does this mean
+        iterator = new MethodTable::IntroducedMethodIterator(klass_clr, FALSE);
         *iter = iterator;
     }
 
