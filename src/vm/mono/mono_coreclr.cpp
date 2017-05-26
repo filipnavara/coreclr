@@ -34,7 +34,15 @@ char s_AssemblyPaths[4096] = { 0 };
 // Import this function manually as it is not defined in a header
 extern "C" HRESULT  GetCLRRuntimeHost(REFIID riid, IUnknown **ppUnk);
 
+#if __APPLE__
+#define ASSERT_NOT_IMPLEMENTED assert(false && "Function not implemented: ")
+#else
 #define ASSERT_NOT_IMPLEMENTED assert(false && "Function not implemented: " __FUNCTION__)
+#endif
+
+#define FIELD_ATTRIBUTE_PRIVATE               0x0001
+#define FIELD_ATTRIBUTE_FAMILY                0x0004
+#define FIELD_ATTRIBUTE_PUBLIC                0x0006
 
 struct MonoCustomAttrInfo_clr
 {
@@ -1060,8 +1068,8 @@ extern "C" const char* mono_field_get_name(MonoClassField *field)
 
 extern "C" MonoClass* mono_field_get_parent(MonoClassField *field)
 {
-    ASSERT_NOT_IMPLEMENTED;
-    return NULL;
+    FieldDesc* fieldDesc = (FieldDesc*)field;
+    return (MonoClass*)fieldDesc->GetApproxEnclosingMethodTable();
 }
 
 extern "C" MonoType* mono_field_get_type(MonoClassField *field)
@@ -1307,8 +1315,8 @@ extern "C" char* mono_type_get_name(MonoType *type)
 
 extern "C" MonoClass* mono_type_get_class(MonoType *type)
 {
-    ASSERT_NOT_IMPLEMENTED;
-    return NULL;
+    TypeHandle handle = TypeHandle::FromPtr((PTR_VOID)type);
+    return (MonoClass*)handle.AsMethodTable();
 }
 
 extern "C" MonoException * mono_exception_from_name_msg(MonoImage *image, const char *name_space, const char *name, const char *msg)
@@ -1691,8 +1699,25 @@ extern "C" void mono_debug_open_image_from_memory(MonoImage *image, const char *
 
 extern "C" guint32 mono_field_get_flags(MonoClassField *field)
 {
-    ASSERT_NOT_IMPLEMENTED;
-    return NULL;
+    guint32 flags = 0;
+    FieldDesc* fieldDesc = (FieldDesc*)field;
+
+    if(fieldDesc->IsPublic())
+    {
+        flags |= FIELD_ATTRIBUTE_PUBLIC;
+    }
+
+    if(fieldDesc->IsProtected())
+    {
+        flags |= FIELD_ATTRIBUTE_FAMILY;
+    }
+
+    if(fieldDesc->IsPrivate())
+    {
+        flags |= FIELD_ATTRIBUTE_PRIVATE;
+    }
+
+    return flags;
 }
 
 extern "C" MonoImage* mono_image_open_from_data_full(const void *data, guint32 data_len, gboolean need_copy, int *status, gboolean ref_only)
@@ -2331,8 +2356,9 @@ extern "C" gboolean mono_custom_attrs_has_attr(MonoCustomAttrInfo *ainfo, MonoCl
 
 extern "C" MonoCustomAttrInfo* mono_custom_attrs_from_field(MonoClass *klass, MonoClassField *field)
 {
-    ASSERT_NOT_IMPLEMENTED;
-    return NULL;
+    FieldDesc* clrFieldDesc = reinterpret_cast<FieldDesc*>(field);
+
+    return (MonoCustomAttrInfo*)clrFieldDesc->GetApproxEnclosingMethodTable();
 }
 
 extern "C" MonoCustomAttrInfo* mono_custom_attrs_from_method(MonoMethod *method)
