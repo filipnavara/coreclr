@@ -34,7 +34,7 @@ char s_AssemblyPaths[4096] = { 0 };
 // Import this function manually as it is not defined in a header
 extern "C" HRESULT  GetCLRRuntimeHost(REFIID riid, IUnknown **ppUnk);
 
-#define ASSERT_NOT_IMPLEMENTED
+#define ASSERT_NOT_IMPLEMENTED assert(false && "Function not implemented: " __FUNCTION__)
 
 struct MonoCustomAttrInfo_clr
 {
@@ -1192,8 +1192,10 @@ extern "C" MonoImage* mono_assembly_get_image(MonoAssembly *assembly)
 
 extern "C" MonoClass* mono_method_get_class(MonoMethod *method)
 {
-    ASSERT_NOT_IMPLEMENTED;
-    return NULL;
+
+    auto method_clr = (MonoMethod_clr*)method;
+    auto class_clr = (MonoClass_clr*)method_clr->GetClass()->GetMethodTable();
+    return (MonoClass*)class_clr;
 }
 
 extern "C" MonoClass* mono_object_get_class(MonoObject *obj)
@@ -1409,7 +1411,10 @@ extern "C" MonoArray* mono_array_new(MonoDomain *domain, MonoClass *eclass, guin
     GCX_COOP();
     // TODO: handle large heap flag?
     auto arrayRef = AllocateObjectArray(n, (MonoClass_clr*)eclass);
-    return (MonoArray*)OBJECTREFToObject(arrayRef);;
+    
+    auto array_clr = (MonoArray_clr*)OBJECTREFToObject(arrayRef);
+    //auto offsetValue = (char*)array_clr->GetDataPtr() - (char*)array_clr;
+    return (MonoArray*)array_clr;
 }
 
 extern "C" MonoArray* mono_array_new_full(MonoDomain *domain, MonoClass *array_class, guint32 *lengths, guint32 *lower_bounds)
@@ -1481,14 +1486,25 @@ extern "C" gboolean mono_class_is_inflated(MonoClass* klass)
 #if !USE_CONSOLEBRANCH_MONO
 extern "C" gboolean unity_mono_method_is_generic(MonoMethod* method)
 {
-    ASSERT_NOT_IMPLEMENTED;
-    return FALSE;
+    CONTRACTL{
+        PRECONDITION(method != nullptr);
+    } CONTRACTL_END;
+    auto method_clr = (MonoMethod_clr*)method;
+
+    return method_clr->IsGenericMethodDefinition() ? TRUE : FALSE;
 }
 
 extern "C" gboolean unity_mono_method_is_inflated(MonoMethod* method)
 {
-    ASSERT_NOT_IMPLEMENTED;
-    return FALSE;
+    CONTRACTL{
+        PRECONDITION(method != nullptr);
+    } CONTRACTL_END;
+    auto method_clr = (MonoMethod_clr*)method;
+    // TODO: is it really the concept behind inflated? (generic instance?)
+    auto isgeneric = method_clr->GetNumGenericMethodArgs() > 0
+        && !method_clr->IsGenericMethodDefinition();
+
+    return isgeneric ? TRUE : FALSE;
 }
 
 #endif
@@ -1501,6 +1517,12 @@ extern "C" MonoThread * mono_thread_attach(MonoDomain *domain)
     auto domain_clr = (MonoDomain_clr*)domain;
     MonoThread_clr* currentThread = GetThread();
 
+    if (currentThread == nullptr)
+    {
+        currentThread = SetupThreadNoThrow();
+    }
+
+    assert(currentThread != nullptr);
     assert(domain_clr->CanThreadEnter(currentThread));
 
     return (MonoThread*)currentThread;
@@ -2713,7 +2735,6 @@ extern "C" gboolean mono_class_is_blittable(MonoClass * klass)
 #if !PLATFORM_XBOXONE
 extern "C" MonoDlFallbackHandler* mono_dl_fallback_register(MonoDlFallbackLoad load_func, MonoDlFallbackSymbol symbol_func, MonoDlFallbackClose close_func, void *user_data)
 {
-    ASSERT_NOT_IMPLEMENTED;
     return NULL;
 }
 extern "C" void mono_dl_fallback_unregister(MonoDlFallbackHandler * handler)
@@ -2740,7 +2761,7 @@ extern "C" MonoClass* mono_unity_class_get(MonoImage * image, guint32 type_token
 }
 extern "C" void mono_unity_domain_set_config(MonoDomain * domain, const char *base_dir, const char *config_file_name)
 {
-    ASSERT_NOT_IMPLEMENTED;
+    // NOP
 }
 extern "C" MonoException* mono_unity_loader_get_last_error_and_error_prepare_exception()
 {
@@ -2749,7 +2770,7 @@ extern "C" MonoException* mono_unity_loader_get_last_error_and_error_prepare_exc
 }
 extern "C" void mono_unity_runtime_set_main_args(int, const char* argv[])
 {
-    ASSERT_NOT_IMPLEMENTED;
+    // NOP
 }
 extern "C" MonoString* mono_unity_string_empty_wrapper()
 {
