@@ -22,6 +22,7 @@ namespace System.Resources
     using System.Text;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Runtime.Serialization;
     using System.Reflection;
     using System.Security;
     using System.Globalization;
@@ -105,6 +106,9 @@ namespace System.Resources
         // Version number of .resources file, for compatibility
         private int _version;
 
+        public delegate object DeserializeDelegate(Stream s);
+
+        private static DeserializeDelegate _formatterDeserialize;
 
         public ResourceReader(string fileName)
         {
@@ -591,7 +595,7 @@ namespace System.Resources
             }
             else
             {
-                throw new NotSupportedException(SR.NotSupported_ResourceObjectSerialization);
+                return DeserializeObject(typeIndex);
             }
         }
 
@@ -743,7 +747,44 @@ namespace System.Resources
             }
 
             // Normal serialized objects
-            throw new NotSupportedException(SR.NotSupported_ResourceObjectSerialization);
+            int typeIndex = typeCode - ResourceTypeCode.StartOfUserTypes;
+            return DeserializeObject(typeIndex);
+        }
+
+        private static void InitalizeDeserializer()
+        {
+            Assembly binaryFormatterAssembly = Assembly.Load("System.Runtime.Serialization.Formatters, Version=4.0.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a");
+            if (binaryFormatterAssembly == null)
+                throw new NotSupportedException(SR.NotSupported_ResourceObjectSerialization);
+
+            Type binaryFormatterType = binaryFormatterAssembly.GetType("System.Runtime.Serialization.Formatters.Binary.BinaryFormatter", true);
+            Debug.Assert(binaryFormatterType != null);
+            object objFormatter = Activator.CreateInstance(binaryFormatterType, null, new StreamingContext(StreamingContextStates.File | StreamingContextStates.Persistence));
+            Debug.Assert(objFormatter != null);
+            MethodInfo deserializeMethod = binaryFormatterType.GetMethod("Deserialize", new[] { typeof(Stream) });
+            Debug.Assert(deserializeMethod != null);
+            _formatterDeserialize = (DeserializeDelegate)Delegate.CreateDelegate(typeof(DeserializeDelegate), objFormatter, deserializeMethod);
+        }
+
+        // Helper method to safely deserialize a type, using a type-limiting
+        // deserialization binder to simulate a type-limiting deserializer.
+        // This method handles types that are safe to deserialize, as well as
+        // ensuring we only get back what we expect.
+        private object DeserializeObject(int typeIndex)
+        {
+            if (_formatterDeserialize == null)
+            {
+                InitalizeDeserializer();
+            }
+
+            Type type = FindType(typeIndex);
+            object graph = _formatterDeserialize(_store.BaseStream);
+            
+            // This check is about correctness, not security at this point.
+            if (graph.GetType() != type)
+                throw new BadImageFormatException(SR.BadImageFormat_TypeMismatch);
+            
+            return graph;
         }
 
         // Reads in the header information for a .resources file.  Verifies some
@@ -945,20 +986,6 @@ namespace System.Resources
                     _store.BaseStream.Position = _typeNamePositions[typeIndex];
                     string typeName = _store.ReadString();
                     _typeTable[typeIndex] = Type.GetType(typeName, true);
-                }
-                // If serialization isn't supported, we convert FileNotFoundException to 
-                // NotSupportedException for consistency with v2. This is a corner-case, but the 
-                // idea is that we want to give the user a more accurate error message. Even if
-                // the dependency were found, we know it will require serialization since it
-                // can't be one of the types we special case. So if the dependency were found,
-                // it would go down the serialization code path, resulting in NotSupported for 
-                // SKUs without serialization.
-                //
-                // We don't want to regress the expected case by checking the type info before 
-                // getting to Type.GetType -- this is costly with v1 resource formats.
-                catch (FileNotFoundException)
-                {
-                    throw new NotSupportedException(SR.NotSupported_ResourceObjectSerialization);
                 }
                 finally
                 {
