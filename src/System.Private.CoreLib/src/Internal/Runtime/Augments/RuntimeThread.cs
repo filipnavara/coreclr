@@ -277,5 +277,17 @@ namespace Internal.Runtime.Augments
 
         public void Start() => AsThread().Start();
         public void Start(object parameter) => AsThread().Start(parameter);
+
+        internal ExecutionContext ExecutionContext
+        {
+            get { return AsThread().ExecutionContext; }
+            set { AsThread().ExecutionContext = value; }
+        }
+
+        internal SynchronizationContext SynchronizationContext
+        {
+            get { return AsThread().SynchronizationContext; }
+            set { AsThread().SynchronizationContext = value; }
+        }
     }
 }

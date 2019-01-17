@@ -369,15 +369,6 @@ namespace System.Threading
         private extern void StartupSetApartmentStateInternal();
 #endif // FEATURE_COMINTEROP_APARTMENT_SUPPORT
 
-        /*
-         *  This returns a unique id to identify an appdomain.
-         */
-        internal static int GetDomainID()
-        {
-            return 1;
-        }
-
-
         // Retrieves the name of the thread.
         //
         public new string Name
