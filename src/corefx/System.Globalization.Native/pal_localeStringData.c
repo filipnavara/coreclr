@@ -118,7 +118,7 @@ Gets the country name for a locale (via uloc_getCountry) and converts the result
 static UErrorCode GetLocaleIso3166CountryName(const char* locale, UChar* value, int32_t valueLength)
 {
     UErrorCode status = U_ZERO_ERROR, ignore = U_ZERO_ERROR;
-    int32_t length = uloc_getCountry(locale, NULL, 0, &status) + 1;
+    int32_t length = uloc_getCountry(locale, NULL, 0, &ignore) + 1;
 
     char* buf = calloc(length, sizeof(char));
     if (buf == NULL)
