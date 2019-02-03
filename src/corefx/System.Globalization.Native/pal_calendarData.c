@@ -428,7 +428,7 @@ static int32_t EnumAbbrevEraNames(const char* locale,
         {
             EnumUResourceBundle(erasResBundle, callback, context);
             CloseResBundle(rootResBundle, calResBundle, targetCalResBundle, erasColResBundle, erasResBundle);
-            return 1;
+            return TRUE;
         }
 
         // Couldn't find the data we need for this locale, we should fallback.
