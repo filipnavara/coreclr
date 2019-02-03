@@ -193,9 +193,9 @@ ResultCode GlobalizationNative_GetCalendarInfo(
 
     switch (dataType)
     {
-        case NativeName:
+        case CalendarData_NativeName:
             return GetNativeCalendarName(locale, calendarId, result, resultCapacity);
-        case MonthDay:
+        case CalendarData_MonthDay:
             return GetMonthDayPattern(locale, result, resultCapacity);
         default:
             assert(FALSE);

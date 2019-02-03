@@ -45,7 +45,7 @@ struct SortHandle
     TCollatorMap* collatorsPerOption;
     pthread_mutex_t collatorsLockObject;
     void* pRoot;
-}
+};
 
 typedef struct { UChar* items; size_t capacity; size_t size; } UCharList;
 
